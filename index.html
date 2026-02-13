@@ -46,7 +46,7 @@
 
         .header-photo {
             width: 100%; aspect-ratio: 1; 
-            border-radius: 50%; overflow: hidden;
+            border-radius: 2%; overflow: hidden;
             border: 2px solid var(--accent);
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
@@ -54,7 +54,8 @@
 
         .header-info h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 0.5rem;}
         .role-tag { color: var(--accent); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; display: block; margin-bottom: 2rem;}
-
+        .intro-section { padding: 4rem 0 2rem; text-align: center; max-width: 700px; margin: 0 auto; }
+        .intro-section p { font-size: 1.25rem; color: var(--text-sec); }
         .info-grid {
             display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
             background: rgba(255,255,255,0.03); padding: 2rem; border-radius: 12px;
@@ -235,6 +236,7 @@
                         <span class="card-date">${p.fecha}</span>
                         <h3 class="card-title">${p.titulo}</h3>
                         <p class="card-desc">${p.desc_corta}</p>
+                        <span class="card-link">Ver detalles &rarr;</span>
                     </div>
                 </article>
             `).join('');
@@ -276,5 +278,6 @@
 </body>
 
 </html>
+
 
 
