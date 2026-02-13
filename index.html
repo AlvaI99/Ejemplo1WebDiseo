@@ -46,7 +46,7 @@
         .card-date { background: #000; color: var(--text-sec); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; margin-bottom: 1rem; }
         .card-title { font-size: 1.4rem; margin-bottom: 0.5rem; font-weight: 700; }
         .card-desc { font-size: 0.95rem; color: var(--text-sec); }
-
+        .card-link {display: inline-block;color: var(--accent);font-weight: 600;border-bottom: 1px solid transparent;}
         /* FOOTER & REDES */
         footer { text-align: center; padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-sec); }
         .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
@@ -57,7 +57,9 @@
         }
         .social-btn:hover { background: var(--accent); color: black; transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
         .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
-
+         /* INTRO --- */
+        .intro-section { padding: 4rem 0 2rem; text-align: center; max-width: 700px; margin: 0 auto; }
+        .intro-section p { font-size: 1.25rem; color: var(--text-sec); }
         /* MODAL & CARRUSEL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; opacity: 0; visibility: hidden; transition: 0.3s; display: flex; justify-content: center; align-items: center; padding: 1rem; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
@@ -251,6 +253,7 @@
                         <span class="card-date">${p.fecha}</span>
                         <h3 class="card-title">${p.titulo}</h3>
                         <p class="card-desc">${p.desc_corta}</p>
+                        <span class="card-link">Ver detalles &rarr;</span>
                     </div>
                 </article>
             `}).join('');
@@ -339,6 +342,7 @@
 </body>
 
 </html>
+
 
 
 
