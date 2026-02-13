@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio | Diseñadora Gráfica</title>
+    <title>Portafolio</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
-        /* --- 1. VARIABLES & RESET --- */
+        /* --- ESTILOS MODERNOS (CSS) --- */
         :root {
-            --bg-color: #0f0f11;      /* Fondo casi negro elegante */
-            --card-bg: #1a1a1d;       /* Fondo de tarjetas */
+            /* Valores por defecto (se sobreescriben con Google Sheets) */
+            --bg-color: #0f0f11;
+            --card-bg: rgba(255,255,255,0.05);
             --text-main: #ffffff;
-            --text-sec: #a1a1aa;      /* Gris suave */
-            --accent: #d4f84c;        /* Un verde neón ácido moderno (puedes cambiarlo) */
+            --text-sec: #a1a1aa;
+            --accent: #d4f84c;
             --font-main: 'Inter', sans-serif;
-            --spacing-unit: 2rem;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,372 +27,246 @@
             color: var(--text-main);
             font-family: var(--font-main);
             line-height: 1.6;
-            overflow-x: hidden;
+            transition: opacity 0.5s ease;
         }
 
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
-        ul { list-style: none; }
-        img { max-width: 100%; display: block; object-fit: cover; }
+        body.loading { opacity: 0; } /* Ocultar hasta cargar datos */
 
-        /* --- 2. LAYOUT GENERAL --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
 
-        /* --- 3. HEADER (REQUISITO: FOTO IZQ + TABLA DERECHA) --- */
+        /* Header Grid */
         header {
             padding: 4rem 0;
             display: grid;
-            grid-template-columns: 1fr 2fr; /* 1 parte foto, 2 partes texto */
+            grid-template-columns: 1fr 2fr;
             gap: 3rem;
             align-items: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .header-photo {
-            width: 100%;
-            aspect-ratio: 1/1; /* Cuadrada */
-            border-radius: 50%; /* O 12px para cuadrado redondeado */
-            overflow: hidden;
+            width: 100%; aspect-ratio: 1; 
+            border-radius: 50%; overflow: hidden;
             border: 2px solid var(--accent);
-            box-shadow: 0 0 20px rgba(212, 248, 76, 0.1);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
+        .header-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-        .header-photo img { width: 100%; height: 100%; }
+        .header-info h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 0.5rem;}
+        .role-tag { color: var(--accent); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; display: block; margin-bottom: 2rem;}
 
-        .header-info h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            letter-spacing: -1px;
-        }
-
-        .header-role {
-            color: var(--accent);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 2rem;
-            display: block;
-        }
-
-        /* La "Tabla" de 2 columnas solicitada */
         .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            background: rgba(255,255,255,0.03);
-            padding: 1.5rem;
-            border-radius: 8px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+            background: rgba(255,255,255,0.03); padding: 2rem; border-radius: 12px;
         }
-
-        .info-item h3 { font-size: 0.85rem; color: var(--text-sec); text-transform: uppercase; }
+        .info-item small { color: var(--text-sec); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.3rem; }
         .info-item p { font-size: 1.1rem; font-weight: 500; }
 
-        /* --- 4. BODY & INTRO --- */
-        .intro-section { padding: 4rem 0 2rem; text-align: center; max-width: 700px; margin: 0 auto; }
-        .intro-section p { font-size: 1.25rem; color: var(--text-sec); }
-
-        /* --- 5. LISTA DE PROYECTOS (GRID) --- */
+        /* Grid de Proyectos */
         .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
-            padding-bottom: 4rem;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem; padding: 4rem 0;
         }
 
-        .project-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            cursor: pointer;
+        .card {
+            background: var(--card-bg); border-radius: 16px; overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer; display: flex; flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
         }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: var(--accent); }
 
-        .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
+        .card-img { height: 240px; overflow: hidden; }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .card:hover .card-img img { transform: scale(1.05); }
 
-        .card-image {
-            height: 250px;
-            overflow: hidden;
-        }
-        
-        .card-image img {
-            width: 100%;
-            height: 100%;
-            transition: transform 0.5s ease;
-        }
+        .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .card-date { background: #000; color: var(--text-sec); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; margin-bottom: 1rem; }
+        .card-title { font-size: 1.4rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .card-desc { font-size: 0.95rem; color: var(--text-sec); line-height: 1.5; }
 
-        .project-card:hover .card-image img { transform: scale(1.05); }
+        /* Footer */
+        footer { text-align: center; padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-sec); }
+        .contact-pill { display: inline-block; background: var(--accent); color: #000; padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: bold; margin-top: 1rem; text-decoration: none; }
 
-        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-
-        .card-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.8rem;
-        }
-
-        .card-date {
-            font-size: 0.8rem;
-            background: #333;
-            padding: 4px 8px;
-            border-radius: 4px;
-            color: var(--text-sec);
-        }
-
-        .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .card-desc { font-size: 0.95rem; color: var(--text-sec); margin-bottom: 1.5rem; flex-grow: 1; }
-
-        .card-link {
-            display: inline-block;
-            color: var(--accent);
-            font-weight: 600;
-            border-bottom: 1px solid transparent;
-        }
-        
-        .project-card:hover .card-link { border-bottom-color: var(--accent); }
-
-        /* --- 6. FOOTER --- */
-        footer {
-            text-align: center;
-            padding: 3rem 0;
-            border-top: 1px solid #333;
-            color: var(--text-sec);
-        }
-
-        footer a { color: var(--text-main); font-weight: bold; }
-
-        /* --- 7. MODAL (DETALLE DEL PROYECTO) --- */
+        /* Modal */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 1rem;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 999;
+            opacity: 0; visibility: hidden; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; padding: 1rem;
         }
-
         .modal-overlay.active { opacity: 1; visibility: visible; }
-
+        
         .modal-content {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            border-radius: 12px;
-            position: relative;
-            padding: 2rem;
-            border: 1px solid #333;
+            background: #151518; max-width: 900px; width: 100%; max-height: 90vh;
+            overflow-y: auto; padding: 2.5rem; border-radius: 20px; position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem; right: 1rem;
-            background: none; border: none;
-            color: white; font-size: 2rem; cursor: pointer;
-        }
-
-        /* Estilos dentro del modal */
-        #modal-image { width: 100%; height: auto; border-radius: 8px; margin-bottom: 1.5rem; }
-        #modal-title { font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent); }
-        #modal-date { display: inline-block; margin-bottom: 1rem; color: var(--text-sec); font-family: monospace; }
-        #modal-desc { font-size: 1.1rem; white-space: pre-line; }
-
-        /* --- 8. RESPONSIVE (CELULAR) --- */
+        .close-btn { position: absolute; top: 1.5rem; right: 1.5rem; font-size: 2rem; color: white; background: none; border: none; cursor: pointer; }
+        
+        /* Responsive */
         @media (max-width: 768px) {
-            header {
-                grid-template-columns: 1fr; /* Una sola columna */
-                text-align: center;
-                gap: 2rem;
-            }
-
-            .header-photo {
-                width: 200px; /* Foto más pequeña en móvil */
-                margin: 0 auto;
-            }
-
-            .info-grid {
-                text-align: left; /* Mantenemos el texto alineado a la izq dentro de la caja */
-                grid-template-columns: 1fr; /* Colapsa la tabla a 1 columna */
-            }
-            
-            .header-info h1 { font-size: 2rem; }
+            header { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
+            .header-photo { width: 180px; margin: 0 auto; }
+            .info-grid { text-align: left; }
+            .header-info h1 { font-size: 2.2rem; }
         }
     </style>
 </head>
-<body>
+<body class="loading">
 
     <div class="container">
-        
         <header>
             <div class="header-photo">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Foto de perfil">
+                <img id="p-foto" src="" alt="Perfil">
             </div>
-            
             <div class="header-info">
-                <h1>Ana Designer</h1>
-                <span class="header-role">Diseñadora Gráfica & Visual</span>
+                <h1 id="p-nombre">Cargando...</h1>
+                <span id="p-rol" class="role-tag"></span>
                 
                 <div class="info-grid">
-                    <div class="info-item">
-                        <h3>Ubicación</h3>
-                        <p>Madrid, España</p>
-                    </div>
-                    <div class="info-item">
-                        <h3>Experiencia</h3>
-                        <p>5+ Años</p>
-                    </div>
-                    <div class="info-item">
-                        <h3>Especialidad</h3>
-                        <p>Branding & UI</p>
-                    </div>
-                    <div class="info-item">
-                        <h3>Disponibilidad</h3>
-                        <p>Freelance / Full-time</p>
-                    </div>
+                    <div class="info-item"><small>Ubicación</small><p id="p-ubicacion"></p></div>
+                    <div class="info-item"><small>Experiencia</small><p id="p-experiencia"></p></div>
+                    <div class="info-item"><small>Especialidad</small><p id="p-especialidad"></p></div>
+                    <div class="info-item"><small>Disponibilidad</small><p id="p-disponibilidad"></p></div>
                 </div>
             </div>
         </header>
 
-        <section class="intro-section">
-            <p>
-                Bienvenido a mi espacio creativo. Aquí combino estrategia visual con estética funcional. 
-                Explora mis últimos trabajos donde la simplicidad se encuentra con el impacto.
-            </p>
-        </section>
-
-        <div id="projects-container" class="projects-grid">
-            </div>
+        <div id="projects-container" class="projects-grid"></div>
 
         <footer>
             <h3>Contacto</h3>
-            <p>hola@anadesigner.com | +34 600 000 000</p>
-            <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.6;">© 2024 Ana Designer Portfolio</p>
+            <p id="p-contacto-info" style="margin-top:0.5rem"></p>
+            <a href="#" id="p-email-btn" class="contact-pill">Enviar Correo</a>
         </footer>
-
     </div>
 
-    <div class="modal-overlay" id="modal">
+    <div id="modal" class="modal-overlay">
         <div class="modal-content">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
-            <img src="" id="modal-image" alt="">
-            <h2 id="modal-title"></h2>
-            <span id="modal-date"></span>
-            <p id="modal-desc"></p>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <img id="m-img" src="" style="width:100%; border-radius:12px; margin-bottom:1.5rem;">
+            <span id="m-date" style="color:var(--accent); font-family:monospace;"></span>
+            <h2 id="m-title" style="font-size:2rem; margin-bottom:1rem;"></h2>
+            <p id="m-desc" style="white-space: pre-line; color: #ddd;"></p>
         </div>
     </div>
 
     <script>
-        /* ------------------------------------------------
-        ÁREA DE EDICIÓN FÁCIL
-        Solo edita esta lista para agregar tus proyectos.
-        ------------------------------------------------
-        */
-        const portfolioData = [
-            {
-                id: 1,
-                title: "Rebranding Neon Coffee",
-                date: "Octubre 2023",
-                shortDesc: "Rediseño completo de identidad corporativa para cadena de cafeterías.",
-                fullDesc: "Este proyecto consistió en modernizar la marca Neon Coffee. Se creó un nuevo logotipo, paleta de colores neón sobre oscuro y diseño de packaging ecológico. El objetivo era atraer a un público joven y nocturno.",
-                image: "https://images.unsplash.com/photo-1501747315-124a0eaca060?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                id: 2,
-                title: "Revista Minimal",
-                date: "Agosto 2023",
-                shortDesc: "Diseño editorial para revista de arquitectura moderna.",
-                fullDesc: "Maquetación de 40 páginas enfocada en el uso del espacio blanco y tipografías suizas. Se priorizó la legibilidad y la jerarquía visual de las fotografías arquitectónicas.",
-                image: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                id: 3,
-                title: "App Fitness UI",
-                date: "Mayo 2023",
-                shortDesc: "Interfaz de usuario para aplicación de seguimiento deportivo.",
-                fullDesc: "Diseño de pantallas en Figma para iOS. Se crearon componentes reutilizables, modo oscuro y animaciones de micro-interacción para los logros del usuario.",
-                image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=800&q=80"
-            },
-            {
-                id: 4,
-                title: "Cartelería Festival Jazz",
-                date: "Enero 2023",
-                shortDesc: "Serie de posters para evento musical en Barcelona.",
-                fullDesc: "Uso de técnicas de collage digital y texturas analógicas para evocar la nostalgia del jazz clásico con un toque contemporáneo.",
-                image: "https://images.unsplash.com/photo-1514525253440-b393452e3383?auto=format&fit=crop&w=800&q=80"
-            }
-        ];
+        /* =========================================
+           TU CONFIGURACIÓN AQUÍ
+           Pega el ID de tu Google Sheet abajo.
+        ========================================= */
+        const SHEET_ID = '2PACX-1vQ1L9J7l0K9qwbLXws31AnbfJVwJVTTOuC_V9BHL_TyfhJuNQlPH0Ugp1WBhUMU_44wGVBeQQGb2Cip'; 
 
-        /* ------------------------------------------------
-        LÓGICA DEL SISTEMA (NO HACE FALTA TOCAR)
-        ------------------------------------------------
-        */
-        
-        const container = document.getElementById('projects-container');
-        const modal = document.getElementById('modal');
+        // URLs mágicas de Google Visualization API (Mejor que CSV directo)
+        const URL_PERFIL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Perfil`;
+        const URL_PROYECTOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Proyectos`;
 
-        // 1. Renderizar los proyectos
-        function loadProjects() {
-            container.innerHTML = portfolioData.map(item => `
-                <article class="project-card" onclick="openProject(${item.id})">
-                    <div class="card-image">
-                        <img src="${item.image}" alt="${item.title}">
+        let projectsData = [];
+
+        function init() {
+            // Cargar Perfil
+            Papa.parse(URL_PERFIL, {
+                download: true,
+                header: false, // La hoja perfil es Clave-Valor
+                complete: function(results) {
+                    applyProfile(results.data);
+                }
+            });
+
+            // Cargar Proyectos
+            Papa.parse(URL_PROYECTOS, {
+                download: true,
+                header: true, // Usa la primera fila como cabeceras
+                skipEmptyLines: true,
+                complete: function(results) {
+                    projectsData = results.data;
+                    renderProjects(projectsData);
+                    document.body.classList.remove('loading');
+                }
+            });
+        }
+
+        function applyProfile(data) {
+            // Convertimos el array de filas en un objeto simple { clave: valor }
+            const perfil = {};
+            data.forEach(row => {
+                if(row[0] && row[1]) perfil[row[0].trim()] = row[1];
+            });
+
+            // Inyectar textos
+            setText('p-nombre', perfil.nombre);
+            setText('p-rol', perfil.rol);
+            setText('p-ubicacion', perfil.ubicacion);
+            setText('p-experiencia', perfil.experiencia);
+            setText('p-especialidad', perfil.especialidad);
+            setText('p-disponibilidad', perfil.disponibilidad);
+            setText('p-contacto-info', `${perfil.telefono}`);
+            
+            // Imagen
+            if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
+            
+            // Botón Email
+            document.getElementById('p-email-btn').href = `mailto:${perfil.email}`;
+
+            // Colores (CSS Variables)
+            const root = document.documentElement.style;
+            if(perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
+            if(perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
+            if(perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
+        }
+
+        function renderProjects(projects) {
+            const container = document.getElementById('projects-container');
+            container.innerHTML = projects.map((p, index) => `
+                <article class="card" onclick="openModal(${index})">
+                    <div class="card-img">
+                        <img src="${p.imagen}" loading="lazy" alt="${p.titulo}">
                     </div>
-                    <div class="card-content">
-                        <div class="card-meta">
-                            <span class="card-date">${item.date}</span>
-                        </div>
-                        <h3 class="card-title">${item.title}</h3>
-                        <p class="card-desc">${item.shortDesc}</p>
-                        <span class="card-link">Ver detalles &rarr;</span>
+                    <div class="card-body">
+                        <span class="card-date">${p.fecha}</span>
+                        <h3 class="card-title">${p.titulo}</h3>
+                        <p class="card-desc">${p.desc_corta}</p>
                     </div>
                 </article>
             `).join('');
         }
 
-        // 2. Abrir Modal con detalles
-        function openProject(id) {
-            const project = portfolioData.find(p => p.id === id);
-            if(!project) return;
+        // Helpers
+        function setText(id, text) {
+            const el = document.getElementById(id);
+            if(el && text) el.textContent = text;
+        }
 
-            document.getElementById('modal-image').src = project.image;
-            document.getElementById('modal-title').innerText = project.title;
-            document.getElementById('modal-date').innerText = project.date;
-            document.getElementById('modal-desc').innerText = project.fullDesc;
-
+        // Modal Logic
+        const modal = document.getElementById('modal');
+        
+        window.openModal = function(index) {
+            const p = projectsData[index];
+            document.getElementById('m-img').src = p.imagen;
+            document.getElementById('m-title').textContent = p.titulo;
+            document.getElementById('m-date').textContent = p.fecha;
+            document.getElementById('m-desc').textContent = p.desc_larga;
             modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Evitar scroll de fondo
+            document.body.style.overflow = 'hidden';
         }
 
-        // 3. Cerrar Modal
-        function closeModal() {
+        window.closeModal = function() {
             modal.classList.remove('active');
-            document.body.style.overflow = 'auto'; // Reactivar scroll
+            document.body.style.overflow = 'auto';
         }
 
-        // Cerrar si clicamos fuera del contenido del modal
         modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
+            if(e.target === modal) closeModal();
         });
 
-        // Iniciar
-        loadProjects();
-
+        // Arrancar
+        init();
     </script>
 </body>
+</html>
+</body>
+
 </html>
