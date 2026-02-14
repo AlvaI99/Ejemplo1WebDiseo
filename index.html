@@ -290,39 +290,43 @@
             }
         }
 
-        function renderProjects(projects) {
-    const container = document.getElementById('projects-container');
-    if (!container) return;
+       function renderProjects(projects) {
+            const container = document.getElementById('projects-container');
+            projectsData = projects; // Guardar para el modal
+            
+            if(projects.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%;">No hay proyectos para mostrar.</p>';
+                return;
+            }
 
-    container.innerHTML = projects.map((p, index) => {
-        // Usamos nombres de variables consistentes con lo que normalizamos arriba
-        const titulo = p.titulo || "Sin título";
-        const fecha = p.fecha || "";
-        const descCorta = p.desc_corta || "";
-        
-        // Manejo de imagen/galería
-        const rawGaleria = p.galeria || p.imagen || ""; // Soporta ambas columnas
-        const firstImg = rawGaleria ? rawGaleria.split(',')[0].trim() : 'https://via.placeholder.com/400x300?text=Sin+Imagen';
-        
-        const isVideo = firstImg.includes('youtube') || firstImg.includes('youtu.be');
-        const thumbnail = isVideo ? getYouTubeThumb(firstImg) : firstImg;
-        const iconOverlay = isVideo ? '<div class="play-icon">▶</div>' : '';
+            container.innerHTML = projects.map((p, index) => {
+                // Variables seguras
+                const titulo = p.titulo || "Sin Título";
+                const fecha = p.fecha || "";
+                const desc = p.desc_corta || "";
+                
+                // Imagen
+                const rawGaleria = p.galeria || p.imagen || ""; 
+                const firstImg = rawGaleria ? rawGaleria.split(',')[0].trim() : 'https://via.placeholder.com/400x300';
+                
+                const isVideo = firstImg.includes('youtube') || firstImg.includes('youtu.be');
+                const thumbnail = isVideo ? `https://img.youtube.com/vi/${getYouTubeID(firstImg)}/hqdefault.jpg` : firstImg;
+                const overlay = isVideo ? '<div class="play-icon">▶</div>' : '';
 
-        return `
-            <article class="card" onclick="openModal(${index})">
-                <div class="card-img">
-                    <img src="${thumbnail}" loading="lazy" alt="${titulo}">
-                    ${iconOverlay}
-                </div>
-                <div class="card-body">
-                    <span class="card-date">${fecha}</span>
-                    <h3 class="card-title">${titulo}</h3>
-                    <p class="card-desc">${descCorta}</p>
-                </div>
-            </article>
-        `;
-    }).join('');
-}
+                return `
+                <article class="card" onclick="openModal(${index})">
+                    <div class="card-img">
+                        <img src="${thumbnail}" loading="lazy" alt="${titulo}">
+                        ${overlay}
+                    </div>
+                    <div class="card-body">
+                        <span class="card-date">${fecha}</span>
+                        <h3 class="card-title">${titulo}</h3>
+                        <p class="card-desc">${desc}</p>
+                    </div>
+                </article>`;
+            }).join('');
+        }
 
         /* --- LÓGICA DEL CARRUSEL --- */
         
@@ -407,6 +411,7 @@
 </body>
 
 </html>
+
 
 
 
