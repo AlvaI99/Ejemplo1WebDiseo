@@ -110,9 +110,7 @@
                 </div>
             </div>
         </header>
-         <section class="intro-section">
-            <p id="p-intro-section"></p>
-        </section>
+         <section class="intro-section"><p id="p-intro-section"></p></section>
         <div id="projects-container" class="projects-grid"></div>
 
         <footer>
@@ -162,7 +160,7 @@
         let currentSlides = [];
         let currentSlideIndex = 0;
 
-        function init() {
+       function init() {
     Papa.parse(URL_PERFIL, {
         download: true,
         header: true, 
@@ -173,8 +171,7 @@
         }
     });
 
-            // Cargar Proyectos
-            Papa.parse(URL_PROYECTOS, {
+    Papa.parse(URL_PROYECTOS, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -219,7 +216,7 @@
             asignar('p-experiencia', 'experiencia');
             asignar('p-especialidad', 'especialidad');
             asignar('p-disponibilidad', 'disponibilidad');
-            asignar('p-intro_section', 'intro_section');
+            asignar('p-intro_section', 'intro-section');
             
             if (perfil.foto) document.getElementById('p-foto').src = perfil.foto;
         
@@ -367,6 +364,7 @@
 </body>
 
 </html>
+
 
 
 
