@@ -190,48 +190,60 @@
         }
 
         function applyProfile(data) {
-            const perfil = {};
-            data.forEach(row => { if(row[0]) perfil[row[0].trim().toLowerCase()] = row[1]; });
+    const perfil = {};
+    data.forEach(row => { 
+        // Solo procesa si la celda A tiene texto y no es un separador como "---"
+        if(row[0] && !row[0].startsWith('---')) { 
+            perfil[row[0].trim().toLowerCase()] = row[1] ? row[1].trim() : ""; 
+        } 
+    });
 
-            // Textos básicos
-            setText('p-nombre', perfil.nombre);
-            setText('p-rol', perfil.rol);
-            setText('p-ubicacion', perfil.ubicacion);
-            setText('p-experiencia', perfil.experiencia);
-            setText('p-especialidad', perfil.especialidad);
-            setText('p-disponibilidad', perfil.disponibilidad);
-            if(perfil.telefono) setText('p-contacto-texto', `También puedes escribirme a: ${perfil.telefono} o ${perfil.email}`);
+    // 1. Textos y Fotos
+    setText('p-nombre', perfil.nombre);
+    setText('p-rol', perfil.rol);
+    setText('p-ubicacion', perfil.ubicacion);
+    setText('p-experiencia', perfil.experiencia);
+    setText('p-especialidad', perfil.especialidad);
+    setText('p-disponibilidad', perfil.disponibilidad);
+    
+    if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
+
+    // 2. Lógica de Contacto (Footer)
+    if(perfil.telefono || perfil.email) {
+        setText('p-contacto-texto', `También puedes escribirme a: ${perfil.telefono || ''} ${perfil.email || ''}`);
+    }
+
+    // 3. Colores y Estilos Dinámicos
+    const root = document.documentElement.style;
+    if(perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
+    if(perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
+    if(perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
+    
+    // Aplicar el border-radius que pusiste en la fila 24
+    if(perfil['headerphoto_border-radius'] !== undefined) {
+        const radius = perfil['headerphoto_border-radius'] || '50%'; // 50% por defecto si está vacío
+        document.querySelector('.header-photo').style.borderRadius = radius.includes('%') ? radius : radius + 'px';
+    }
+
+    // 4. Redes Sociales
+    const socialContainer = document.getElementById('social-container');
+    socialContainer.innerHTML = '';
+    const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
+
+    redes.forEach(red => {
+        let link = perfil[red];
+        if(link && link.length > 5) { // Solo si hay un link real
+            if(red === 'email') link = `mailto:${link}`;
+            if(red === 'whatsapp') link = `https://wa.me/${link.replace(/\+/g,'').replace(/\s/g,'')}`;
             
-            if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
-
-            // Colores
-            const root = document.documentElement.style;
-            if(perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
-            if(perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
-            if(perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
-
-            // Generar Footer Social (Dinámico)
-            const socialContainer = document.getElementById('social-container');
-            socialContainer.innerHTML = '';
-            
-            // Redes soportadas
-            const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
-            
-            // Caso especial email y whatsapp para que sean links funcionales
-            if(perfil.email) perfil.email = `mailto:${perfil.email}`;
-            if(perfil.whatsapp) perfil.whatsapp = `https://wa.me/${perfil.whatsapp.replace(/\+/g,'')}`;
-
-            redes.forEach(red => {
-                if(perfil[red]) {
-                    const iconPath = ICONS[red] || ICONS.email; // Fallback
-                    socialContainer.innerHTML += `
-                        <a href="${perfil[red]}" target="_blank" class="social-btn" title="${red}">
-                            <svg viewBox="0 0 24 24">${iconPath}</svg>
-                        </a>
-                    `;
-                }
-            });
+            const iconPath = ICONS[red] || ICONS.email;
+            socialContainer.innerHTML += `
+                <a href="${link}" target="_blank" class="social-btn" title="${red}">
+                    <svg viewBox="0 0 24 24">${iconPath}</svg>
+                </a>`;
         }
+    });
+}
 
         function renderProjects(projects) {
             const container = document.getElementById('projects-container');
@@ -342,6 +354,7 @@
 </body>
 
 </html>
+
 
 
 
