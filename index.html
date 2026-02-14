@@ -3,430 +3,546 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio</title>
+    <title>Cargando Portafolio...</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@300;500;800&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
-       /* --- ESTILOS GENERALES --- */
+        /* --- 1. VARIABLES DINÁMICAS (SE SOBREESCRIBEN CON JS) --- */
         :root {
-            --bg-color: #0f0f11;
-            --card-bg: #18181b;
-            --text-main: #ffffff;
-            --text-sec: #a1a1aa;
-            --accent: #d4f84c;
-            --font-main: 'Inter', sans-serif;
+            --bg-color: #ffffff;
+            --text-main: #1a1a1a;
+            --text-sec: #666666;
+            --accent: #000000;
+            --card-bg: #f4f4f5;
+            --radius: 12px;
+            
+            --font-title: 'Montserrat', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            
+            --spacing-unit: 1rem;
+            --container-width: 1200px;
         }
+
+        /* --- 2. RESET Y BASE --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-main); line-height: 1.6; transition: opacity 0.5s; }
-        body.loading { opacity: 0; }
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
-
-        /* HEADER */
-        header { padding: 4rem 0; display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .header-photo { width: 100%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 2px solid var(--accent); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
-        .header-photo img { width: 100%; height: 100%; object-fit: cover; }
-        .header-info h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; line-height: 1.1; margin-bottom: 0.5rem;}
-        .role-tag { color: var(--accent); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; display: block; margin-bottom: 2rem;}
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; background: rgba(255,255,255,0.03); padding: 2rem; border-radius: 12px; }
-        .info-item small { color: var(--text-sec); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 0.3rem; }
         
-        /* PROYECTOS */
-        .projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 2rem; padding: 4rem 0; }
-        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; border: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: var(--accent); }
-        .card-img { height: 240px; overflow: hidden; position: relative; }
-        .card-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        .card:hover .card-img img { transform: scale(1.05); }
-        /* Icono superpuesto si es video */
-        .play-icon { position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:3rem; color:white; text-shadow:0 0 10px rgba(0,0,0,0.5); opacity:0.8; }
-        .card-body { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
-        .card-date { background: #000; color: var(--text-sec); padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; margin-bottom: 1rem; }
-        .card-title { font-size: 1.4rem; margin-bottom: 0.5rem; font-weight: 700; }
-        .card-desc { font-size: 0.95rem; color: var(--text-sec); }
-        .card-link {display: inline-block;color: var(--accent);font-weight: 600;border-bottom: 1px solid transparent;}
-        /* FOOTER & REDES */
-        footer { text-align: center; padding: 4rem 0; border-top: 1px solid rgba(255,255,255,0.1); color: var(--text-sec); }
-        .social-links { display: flex; justify-content: center; gap: 1.5rem; margin-top: 2rem; flex-wrap: wrap; }
-        .social-btn { 
-            width: 50px; height: 50px; background: rgba(255,255,255,0.05); border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            transition: 0.3s; color: white; border: 1px solid transparent;
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: var(--font-body); 
+            line-height: 1.6; 
+            overflow-x: hidden;
+            transition: opacity 0.4s ease;
         }
-        .social-btn:hover { background: var(--accent); color: black; transform: scale(1.1); box-shadow: 0 0 15px var(--accent); }
-        .social-btn svg { width: 24px; height: 24px; fill: currentColor; }
-         /* INTRO --- */
-        .intro-section { padding: 4rem 0 2rem; text-align: center; max-width: 700px; margin: 0 auto; }
-        .intro-section p { font-size: 1.25rem; color: var(--text-sec); }
-        /* MODAL & CARRUSEL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 999; opacity: 0; visibility: hidden; transition: 0.3s; display: flex; justify-content: center; align-items: center; padding: 1rem; }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-content { background: #151518; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 0; border-radius: 20px; position: relative; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
-        
-        /* Contenedor Multimedia */
-        .carousel-container { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center; }
-        .carousel-slide { width: 100%; height: 100%; display: none; }
-        .carousel-slide.active { display: block; }
-        .carousel-slide img { width: 100%; height: 100%; object-fit: contain; }
-        .carousel-slide iframe { width: 100%; height: 100%; border: none; }
-        
-        /* Botones Carrusel */
-        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; border: none; padding: 1rem; cursor: pointer; font-size: 1.5rem; z-index: 10; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-        .carousel-btn:hover { background: var(--accent); color: black; }
-        .carousel-btn.prev { left: 1rem; }
-        .carousel-btn.next { right: 1rem; }
-        .carousel-counter { position: absolute; bottom: 1rem; right: 1rem; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: white; }
 
-        .modal-text { padding: 2rem; }
-        .close-btn { position: absolute; top: 1rem; right: 1rem; font-size: 2rem; color: white; background: rgba(0,0,0,0.5); width: 40px; height: 40px; border-radius: 50%; border: none; cursor: pointer; z-index: 20; display: flex; align-items: center; justify-content: center; }
-        .close-btn:hover { background: #ff4d4d; }
+        body.loading { opacity: 0; pointer-events: none; }
 
-        @media (max-width: 768px) {
-            header { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
-            .header-photo { width: 180px; margin: 0 auto; }
-            .info-grid { text-align: left; }
-            .carousel-btn { padding: 0.5rem; width: 40px; height: 40px; font-size: 1rem; }
+        h1, h2, h3, h4 { font-family: var(--font-title); line-height: 1.1; }
+        a { text-decoration: none; color: inherit; transition: 0.3s; }
+        img { max-width: 100%; display: block; }
+
+        .container { 
+            max-width: var(--container-width); 
+            margin: 0 auto; 
+            padding: 0 2rem; 
+        }
+
+        /* --- 3. ANIMACIONES (Del estilo "Muestra") --- */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- 4. HEADER & HERO --- */
+        header {
+            padding: 6rem 0 4rem;
+            position: relative;
+        }
+        
+        /* Patrón de fondo sutil opcional */
+        .bg-pattern {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(var(--text-sec) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.07;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .profile-photo {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: var(--radius);
+            box-shadow: 20px 20px 0px var(--accent); /* Efecto gráfico */
+            transition: transform 0.5s;
+        }
+        .profile-photo:hover { transform: scale(0.98) translate(5px, 5px); box-shadow: 10px 10px 0px var(--accent); }
+
+        .hero-text h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .hero-role {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .hero-bio {
+            font-size: 1.1rem;
+            color: var(--text-sec);
+            max-width: 500px;
+            margin-bottom: 2rem;
+        }
+
+        .social-links { display: flex; gap: 1rem; }
+        .social-btn {
+            width: 45px; height: 45px;
+            border: 1px solid var(--text-main);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .social-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--bg-color); }
+
+        /* --- 5. GRID DE PROYECTOS --- */
+        .projects-section { padding: 4rem 0 8rem; }
+        .section-title { margin-bottom: 3rem; font-size: 2rem; position: relative; display: inline-block; }
+        .section-title::after { content:''; position: absolute; bottom: -10px; left: 0; width: 50%; height: 3px; background: var(--accent); }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 3rem;
+        }
+
+        .project-card {
+            group;
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+        
+        .project-card:hover { transform: translateY(-10px); }
+
+        .card-image-wrapper {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            margin-bottom: 1.5rem;
+            background: var(--card-bg);
+        }
+
+        .card-image-wrapper img {
+            width: 100%; height: 100%; object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+        
+        .project-card:hover img { transform: scale(1.05); }
+
+        .card-tags {
+            display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.8rem;
+        }
+        .tag {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--text-sec);
+            opacity: 0.7;
+        }
+
+        .card-title { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .card-desc { color: var(--text-sec); font-size: 0.95rem; }
+
+        /* Icono de Play para videos */
+        .play-overlay {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.2); opacity: 0; transition: 0.3s;
+        }
+        .project-card:hover .play-overlay { opacity: 1; }
+        .play-icon { width: 50px; height: 50px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: black; }
+
+        /* --- 6. MODAL MEJORADO --- */
+        .modal {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            opacity: 0; pointer-events: none;
+            transition: 0.4s;
+            display: grid; place-items: center;
+            padding: 2rem;
+        }
+        .modal.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            width: 100%; max-width: 1100px;
+            height: 85vh;
+            background: var(--bg-color);
+            border-radius: var(--radius);
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .modal-media {
+            background: #000;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .modal-info {
+            padding: 3rem;
+            overflow-y: auto;
+            color: var(--text-main);
+        }
+
+        /* Carrusel Controles */
+        .slide { display: none; width: 100%; height: 100%; }
+        .slide.active { display: block; }
+        .slide img { width: 100%; height: 100%; object-fit: contain; }
+        .slide iframe { width: 100%; height: 100%; border: none; }
+
+        .carousel-nav {
+            position: absolute; bottom: 20px; right: 20px;
+            display: flex; gap: 10px;
+        }
+        .nav-btn {
+            width: 40px; height: 40px;
+            background: white; border: none; border-radius: 50%;
+            cursor: pointer; opacity: 0.8; font-weight: bold;
+        }
+        .nav-btn:hover { opacity: 1; transform: scale(1.1); }
+
+        .close-modal {
+            position: absolute; top: 20px; right: 20px;
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.1); color: var(--text-main);
+            border-radius: 50%; border: none; cursor: pointer;
+            z-index: 10; font-size: 1.5rem;
+        }
+
+        /* --- 7. RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .hero-grid { grid-template-columns: 1fr; text-align: center; }
+            .hero-grid img { width: 200px; margin: 0 auto; box-shadow: none; border: 4px solid var(--accent); }
+            .social-links { justify-content: center; }
+            .modal-content { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+            .modal-info { padding: 1.5rem; }
         }
     </style>
 </head>
 <body class="loading">
 
+    <div class="bg-pattern"></div>
+
     <div class="container">
-        <header>
-            <div class="header-photo">
-                <img id="p-foto" src="" alt="Perfil">
-            </div>
-            <div class="header-info">
-                <h1 id="p-nombre">Cargando...</h1>
-                <span id="p-rol" class="role-tag"></span>
-                
-                <div class="info-grid">
-                    <div class="info-item"><small>Ubicación</small><p id="p-ubicacion"></p></div>
-                    <div class="info-item"><small>Experiencia</small><p id="p-experiencia"></p></div>
-                    <div class="info-item"><small>Especialidad</small><p id="p-especialidad"></p></div>
-                    <div class="info-item"><small>Disponibilidad</small><p id="p-disponibilidad"></p></div>
+        <header id="header-section" class="fade-in-up">
+            <div class="hero-grid">
+                <div class="hero-text">
+                    <span class="hero-role" id="p-rol">Diseñadora</span>
+                    <h1 id="p-nombre">Cargando...</h1>
+                    <p class="hero-bio" id="p-bio">...</p>
+                    <div class="social-links" id="social-container">
+                        </div>
+                </div>
+                <div class="hero-image">
+                    <img id="p-foto" src="" alt="Perfil" class="profile-photo">
                 </div>
             </div>
         </header>
-         <section class="intro-section"><p id="p-intro-section"></p></section>
-        <div id="projects-container" class="projects-grid"></div>
 
-        <footer>
-            <h3>Contacto</h3>
-            <p id="p-contacto-texto" style="margin: 0.5rem 0 1.5rem;"></p>
-            <div id="social-container" class="social-links">
+        <section class="projects-section">
+            <h2 class="section-title fade-in-up">Proyectos Seleccionados</h2>
+            <div id="projects-container" class="projects-grid">
                 </div>
-            <p style="margin-top: 3rem; font-size: 0.8rem; opacity: 0.5;">© Portafolio 2026</p>
+        </section>
+
+        <footer style="text-align: center; padding: 2rem; opacity: 0.5; font-size: 0.8rem;">
+            &copy; <span id="year"></span> Portafolio.
         </footer>
     </div>
 
-    <div id="modal" class="modal-overlay">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
+    <div id="modal" class="modal">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeModal()">&times;</button>
             
-            <div class="carousel-container">
-                <button class="carousel-btn prev" onclick="moveSlide(-1)">&#10094;</button>
-                <div id="carousel-track" style="width: 100%; height: 100%;">
-                    </div>
-                <button class="carousel-btn next" onclick="moveSlide(1)">&#10095;</button>
-                <div class="carousel-counter" id="carousel-counter">1/1</div>
+            <div class="modal-media">
+                <div id="carousel-track" style="width: 100%; height: 100%;"></div>
+                <div class="carousel-nav">
+                    <button class="nav-btn" onclick="moveSlide(-1)">←</button>
+                    <button class="nav-btn" onclick="moveSlide(1)">→</button>
+                </div>
             </div>
-
-            <div class="modal-text">
-                <span id="m-date" style="color:var(--accent); font-family:monospace; display:block; margin-bottom:0.5rem;"></span>
-                <h2 id="m-title" style="font-size:2rem; margin-bottom:1rem; color: white;"></h2>
-                <p id="m-desc" style="white-space: pre-line; color: #ddd;"></p>
+            
+            <div class="modal-info">
+                <div id="m-tags" class="card-tags" style="margin-bottom: 1rem;"></div>
+                <h2 id="m-title" style="font-size: 2.5rem; margin-bottom: 0.5rem; line-height: 1;"></h2>
+                <span id="m-date" style="color: var(--accent); font-weight: bold; display: block; margin-bottom: 2rem;"></span>
+                <p id="m-desc" style="white-space: pre-line; font-size: 1rem; color: var(--text-sec);"></p>
             </div>
         </div>
     </div>
 
     <script>
+        // --- CONFIGURACIÓN ---
+        // Pega aquí el ID de tu Google Sheet
         const SHEET_ID = '1z7X1BK7JfClh0hNNLktqEFCh7m4Ispmrs9LWagZ3BS4'; 
         const GID_PROYECTOS = '699907319';
+        
+        // --- LÓGICA ---
         const URL_PERFIL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`; 
         const URL_PROYECTOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_PROYECTOS}`;
-        const ICONS = {
-            instagram: "M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z",
-            tiktok: "M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.14c0 3.48-2.32 6.66-5.73 7.54-4.88 1.29-9.15-2.26-9.19-6.57.17-3.9 3.52-7.23 7.51-7.07v3.97c-1.68-.13-3.21 1.04-3.5 2.71-.38 2.37 1.67 4.7 4.14 4.38 1.95-.23 3.25-1.93 3.25-3.84V.02h-.56z",
-            facebook: "M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z",
-            linkedin: "M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z",
-            behance: "M22 7h-5v2h5V7zm-8.208 4.298c1.328 0 2.296.347 2.903 1.04.608.694.912 1.673.912 2.938v.258h-6.52c.046 1.196.398 2.01 1.057 2.441.658.432 1.488.648 2.488.648 1.205 0 2.076-.381 2.613-1.144l2.585 1.549c-.534 1.111-1.411 1.977-2.632 2.597-1.22.621-2.668.931-4.343.931-2.127 0-3.804-.616-5.031-1.848-1.228-1.232-1.841-2.92-1.841-5.064 0-2.144.622-3.861 1.866-5.152 1.244-1.291 2.946-1.936 5.105-1.936.31 0 .618.016.924.048-.028-.006-.057-.006-.086 0zm-2.705 2.57c-.553.432-.916 1.093-1.089 1.984h4.155c-.068-.962-.416-1.638-1.045-2.028-.629-.39-1.356-.585-2.18-.585-.688 0-1.323.21-1.906.629h2.065zM5.892 7.025h3.692c1.789 0 3.09.431 3.901 1.293.811.862 1.217 2.15 1.217 3.863 0 1.229-.272 2.259-.817 3.091-.545.832-1.282 1.41-2.211 1.734v.104c1.178.291 2.084 1.002 2.716 2.133.633 1.13.949 2.518.949 4.164 0 1.892-.475 3.321-1.425 4.288-.95 .968-2.395 1.451-4.332 1.451H2.2v-22.12h3.692zm0 8.783h1.369c1.077 0 1.834-.233 2.271-.7.436-.467.654-1.155.654-2.065 0-.91-.213-1.611-.639-2.103-.426-.492-1.118-.738-2.077-.738h-1.578v5.606zm0 9.873h1.726c1.161 0 1.996-.282 2.503-.847.508-.564.762-1.403.762-2.517 0-1.196-.252-2.063-.756-2.601-.504-.538-1.326-.807-2.466-.807H5.892v6.772z",
-            email: "M0 3v18h24v-18h-24zm6.623 7.929l-4.623 5.712v-11.174l4.623 5.462zm2.157-6.929h6.445l-5.358 6.558-1.087-1.33zm9.152 7.297l3.068 3.703h-18l3.356-4.049 4.296 5.071 1.086-1.329 1.11 1.329 5.084-4.725zm1.445-.368l4.623-5.462v11.174l-4.623-5.712z",
-            whatsapp: "M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"
-        };
 
         let projectsData = [];
         let currentSlides = [];
         let currentSlideIndex = 0;
 
-       function init() {
-            console.log("🚀 Iniciando carga...");
+        // Iconos SVG simples
+        const ICONS = {
+            instagram: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>`,
+            behance: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 7H17V9H22V7ZM23.73 17C23.29 18.3 21.7 20 18.63 20C15.56 20 13.07 18.27 13.07 14.33C13.07 10.42 15.39 8.41 18.53 8.41C21.61 8.41 23.49 10.19 23.9 12.83C23.98 13.34 24.01 14.02 24 14.97H15.97C16.1 18.18 19.45 18.28 20.56 17H23.73ZM16.04 13H21.01C20.9 11.45 19.87 10.78 18.53 10.78C17.06 10.78 16.25 11.55 16.04 13ZM6.47 13.99H2.88V6.99H6.47C8.98 6.99 9.38 3.99 6.16 3.99H2.89V1H6.38V3.99C9.44 3.99 9.25 .97 6.4 1"></path></svg>`,
+            linkedin: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>`,
+            email: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`,
+            default: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`
+        };
 
-            // 1. CARGAR PERFIL
-            fetch(URL_PERFIL)
-                .then(r => r.text())
-                .then(csvText => {
-                    console.log("✅ Perfil descargado. Longitud:", csvText.length);
-                    Papa.parse(csvText, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            applyProfile(results.data);
-                        }
-                    });
-                })
-                .catch(err => console.error("❌ Error descargando Perfil:", err));
+        function init() {
+            document.getElementById('year').textContent = new Date().getFullYear();
 
-            // 2. CARGAR PROYECTOS (Con diagnóstico de texto)
-            console.log("⏳ Intentando descargar Proyectos desde:", URL_PROYECTOS);
-            fetch(URL_PROYECTOS)
-                .then(r => r.text())
-                .then(csvText => {
-                    console.log("✅ Proyectos descargado. Primeros 100 caracteres:", csvText.substring(0, 100));
+            // 1. Cargar Perfil y Estilos
+            Papa.parse(URL_PERFIL, {
+                download: true,
+                header: true,
+                complete: (results) => {
+                    const perfil = processProfileData(results.data);
+                    applyStylesAndContent(perfil);
                     
-                    // Verificamos si bajó HTML en vez de CSV
-                    if(csvText.trim().startsWith("<!DOCTYPE")) {
-                        console.error("🚨 ALERTA: Google devolvió una página web, no el CSV. Revisa los permisos o el GID.");
-                        return;
-                    }
-
-                    Papa.parse(csvText, {
-                        header: true, // Esto le dice que la PRIMERA FILA son los títulos
-                        skipEmptyLines: true,
-                        complete: function(results) {
-                            console.log("📊 Parseo completo. Filas encontradas:", results.data.length);
-                            
-                            // Normalizamos las columnas
-                            const cleanProjects = results.data.map(row => {
-                                const newRow = {};
-                                for (let key in row) {
-                                    // Limpiar nombre de columna: "Título " -> "titulo"
-                                    const cleanKey = key.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                                    newRow[cleanKey] = row[key];
-                                }
-                                return newRow;
-                            });
-
-                            console.log("✨ Proyectos normalizados:", cleanProjects);
-                            renderProjects(cleanProjects);
-                            document.body.classList.remove('loading');
-                        }
-                    });
-                })
-                .catch(err => console.error("❌ Error grave descargando Proyectos:", err));
+                    // 2. Cargar Proyectos tras tener los estilos
+                    loadProjects();
+                }
+            });
         }
 
-        function applyProfile(data) {
+        function processProfileData(data) {
             const perfil = {};
-            
-            data.forEach(row => { 
-                // Buscamos las columnas por el nombre exacto de tu Excel
-                const claveOriginal = row["Clave (no tocar)"] || row["clave (no tocar)"];
-                const valorOriginal = row["Valor"] || row["valor"];
-        
-                if (claveOriginal && claveOriginal.trim() !== "") { 
-                    const clave = claveOriginal.trim().toLowerCase()
-                                  .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    const valor = valorOriginal ? valorOriginal.trim() : "";
-                    
-                    if (!clave.startsWith('---')) {
-                        perfil[clave] = valor;
-                    }
-                } 
+            data.forEach(row => {
+                if(row['Clave (no tocar)'] && row['Valor']) {
+                    perfil[row['Clave (no tocar)'].trim().toLowerCase()] = row['Valor'].trim();
+                }
             });
-        
-            console.log("Perfil procesado correctamente:", perfil);
-        
-            // Asignación de Textos
-            const asignar = (id, clave) => {
-                const el = document.getElementById(id);
-                if (el && perfil[clave]) el.textContent = perfil[clave];
-            };
-        
-            asignar('p-nombre', 'nombre');
-            asignar('p-rol', 'rol');
-            asignar('p-ubicacion', 'ubicacion');
-            asignar('p-experiencia', 'experiencia');
-            asignar('p-especialidad', 'especialidad');
-            asignar('p-disponibilidad', 'disponibilidad');
-            asignar('p-intro-section', 'intro_section');
+            return perfil;
+        }
+
+        function applyStylesAndContent(perfil) {
+            const r = document.documentElement.style;
+
+            // -- Personalización Visual (Sheet-Driven) --
+            if (perfil.color_fondo) r.setProperty('--bg-color', perfil.color_fondo);
+            if (perfil.color_texto) r.setProperty('--text-main', perfil.color_texto);
+            if (perfil.color_secundario) r.setProperty('--text-sec', perfil.color_secundario);
+            if (perfil.color_acento) r.setProperty('--accent', perfil.color_acento);
+            if (perfil.borde_radio) r.setProperty('--radius', perfil.borde_radio);
             
+            // Fuentes
+            if (perfil.fuente_titulo) r.setProperty('--font-title', `"${perfil.fuente_titulo}", serif`);
+            if (perfil.fuente_cuerpo) r.setProperty('--font-body', `"${perfil.fuente_cuerpo}", sans-serif`);
+
+            // -- Contenido --
+            setText('p-nombre', perfil.nombre);
+            setText('p-rol', perfil.rol);
+            setText('p-bio', perfil.intro_section || perfil.bio); // Soporta ambas claves
             if (perfil.foto) document.getElementById('p-foto').src = perfil.foto;
-        
-            // Contacto
-            const contactoTexto = document.getElementById('p-contacto-texto');
-            if (contactoTexto) {
-                contactoTexto.textContent = `Contacto: ${perfil.telefono || ''} ${perfil.email || ''}`;
-            }
-        
-            // Estilos (Colores y Radio)
-            const root = document.documentElement.style;
-            if (perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
-            if (perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
-            if (perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
-            
-            const radiusVal = perfil['headerphoto_border-radius'];
-            if (radiusVal !== undefined) {
-                const r = radiusVal.toString();
-                document.querySelector('.header-photo').style.borderRadius = r.includes('%') ? r : r + "px";
-            }
-        
+
+            // Titulo de la pestaña
+            document.title = `${perfil.nombre || 'Portafolio'} - ${perfil.rol || 'Diseño'}`;
+
             // Redes Sociales
             const socialContainer = document.getElementById('social-container');
-            if (socialContainer) {
-                socialContainer.innerHTML = '';
-                const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
-                redes.forEach(red => {
-                    let link = perfil[red];
-                    if (link && link.length > 5) {
-                        if (red === 'email') link = `mailto:${link}`;
-                        if (red === 'whatsapp') link = `https://wa.me/${link.replace(/\D/g,'')}`;
-                        const iconPath = ICONS[red] || ICONS.email;
-                        socialContainer.innerHTML += `<a href="${link}" target="_blank" class="social-btn"><svg viewBox="0 0 24 24">${iconPath}</svg></a>`;
-                    }
-                });
-            }
+            const redes = ['instagram', 'behance', 'linkedin', 'email', 'tiktok'];
+            
+            redes.forEach(red => {
+                if(perfil[red]) {
+                    let href = perfil[red];
+                    if(red === 'email') href = `mailto:${perfil[red]}`;
+                    
+                    const icon = ICONS[red] || ICONS.default;
+                    const a = document.createElement('a');
+                    a.className = 'social-btn';
+                    a.href = href;
+                    a.target = '_blank';
+                    a.innerHTML = icon;
+                    socialContainer.appendChild(a);
+                }
+            });
         }
 
-       function renderProjects(projects) {
-            const container = document.getElementById('projects-container');
-            projectsData = projects; // Guardar para el modal
-            
-            if(projects.length === 0) {
-                container.innerHTML = '<p style="text-align:center; width:100%;">No hay proyectos para mostrar.</p>';
-                return;
-            }
+        function loadProjects() {
+            Papa.parse(URL_PROYECTOS, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    projectsData = results.data;
+                    renderProjects(results.data);
+                    
+                    // Finalizar carga
+                    document.body.classList.remove('loading');
+                    initAnimations();
+                }
+            });
+        }
 
-            container.innerHTML = projects.map((p, index) => {
-                // Variables seguras
-                const titulo = p.titulo || "Sin Título";
-                const fecha = p.fecha || "";
-                const desc = p.desc_corta || "";
+        function renderProjects(projects) {
+            const container = document.getElementById('projects-container');
+            
+            container.innerHTML = projects.map((p, idx) => {
+                if(!p.titulo) return '';
+
+                // Imágenes
+                const galeria = p.galeria ? p.galeria.split(',') : [p.imagen];
+                const thumb = getThumbnail(galeria[0]);
+                const isVideo = thumb.includes('youtube');
                 
-                // Imagen
-                const rawGaleria = p.galeria || p.imagen || ""; 
-                const firstImg = rawGaleria ? rawGaleria.split(',')[0].trim() : 'https://via.placeholder.com/400x300';
-                
-                const isVideo = firstImg.includes('youtube') || firstImg.includes('youtu.be');
-                const thumbnail = isVideo ? `https://img.youtube.com/vi/${getYouTubeID(firstImg)}/hqdefault.jpg` : firstImg;
-                const overlay = isVideo ? '<div class="play-icon">▶</div>' : '';
+                // Tags
+                let tagsHtml = '';
+                if(p.tags) {
+                    const tags = p.tags.split(',').slice(0, 3); // Max 3 tags
+                    tagsHtml = tags.map(t => `<span class="tag">${t.trim()}</span>`).join('');
+                }
 
                 return `
-                <article class="card" onclick="openModal(${index})">
-                    <div class="card-img">
-                        <img src="${thumbnail}" loading="lazy" alt="${titulo}">
-                        ${overlay}
+                <article class="project-card fade-in-up" onclick="openModal(${idx})" style="transition-delay: ${idx * 100}ms">
+                    <div class="card-image-wrapper">
+                        <img src="${isVideo ? getYoutubeThumb(thumb) : thumb}" loading="lazy" alt="${p.titulo}">
+                        ${isVideo ? `<div class="play-overlay"><div class="play-icon">▶</div></div>` : ''}
                     </div>
-                    <div class="card-body">
-                        <span class="card-date">${fecha}</span>
-                        <h3 class="card-title">${titulo}</h3>
-                        <p class="card-desc">${desc}</p>
+                    <div class="card-content">
+                        <div class="card-tags">${tagsHtml}</div>
+                        <h3 class="card-title">${p.titulo}</h3>
+                        <p class="card-desc">${p.desc_corta || ''}</p>
                     </div>
-                </article>`;
+                </article>
+                `;
             }).join('');
         }
 
-        /* --- LÓGICA DEL CARRUSEL --- */
+        // --- FUNCIONES UTILITARIAS ---
+        function setText(id, txt) { if(document.getElementById(id) && txt) document.getElementById(id).textContent = txt; }
         
-        window.openModal = function(index) {
-            const p = projectsData[index];
-            
-            // Preparar Textos
-            document.getElementById('m-title').textContent = p.titulo;
-            document.getElementById('m-date').textContent = p.fecha;
-            document.getElementById('m-desc').textContent = p.desc_larga;
+        function getThumbnail(url) {
+            if(!url) return 'https://via.placeholder.com/800x600?text=No+Image';
+            return url.trim();
+        }
 
-            // Preparar Slides (Separa por comas)
-            const rawLinks = p.galeria ? p.galeria.split(',') : [];
-            currentSlides = rawLinks.map(l => l.trim()).filter(l => l.length > 0);
-            
-            if(currentSlides.length === 0) currentSlides = ['https://via.placeholder.com/800x400?text=Sin+Imagen'];
-            
+        function getYoutubeThumb(url) {
+            const id = getYouTubeID(url);
+            return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : url;
+        }
+
+        function getYouTubeID(url) {
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        // --- ANIMACIONES (INTERSECTION OBSERVER) ---
+        function initAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+        }
+
+        // --- MODAL & CARRUSEL ---
+        window.openModal = (idx) => {
+            const p = projectsData[idx];
+            currentSlides = p.galeria ? p.galeria.split(',').map(s=>s.trim()) : [p.imagen];
             currentSlideIndex = 0;
-            renderSlide(currentSlideIndex);
 
-            // Mostrar/Ocultar botones si solo hay 1 imagen
-            const displayBtn = currentSlides.length > 1 ? 'flex' : 'none';
-            document.querySelectorAll('.carousel-btn').forEach(b => b.style.display = displayBtn);
+            document.getElementById('m-title').textContent = p.titulo;
+            document.getElementById('m-desc').textContent = p.desc_larga;
+            document.getElementById('m-date').textContent = p.fecha;
+            
+            // Tags en modal
+            const tagsContainer = document.getElementById('m-tags');
+            tagsContainer.innerHTML = p.tags ? p.tags.split(',').map(t => `<span class="tag" style="border-color:var(--accent)">${t.trim()}</span>`).join('') : '';
 
+            renderSlide();
+            
+            // Mostrar flechas solo si hay más de 1 slide
+            document.querySelector('.carousel-nav').style.display = currentSlides.length > 1 ? 'flex' : 'none';
+            
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        function renderSlide(index) {
-            const track = document.getElementById('carousel-track');
-            const url = currentSlides[index];
-            const counter = document.getElementById('carousel-counter');
-            
-            // Detectar si es video
-            let html = '';
-            if(url.includes('youtube') || url.includes('youtu.be')) {
-                const videoId = getYouTubeID(url);
-                html = `<iframe src="https://www.youtube.com/embed/${videoId}?rel=0" allowfullscreen></iframe>`;
-            } else {
-                html = `<img src="${url}" alt="Proyecto">`;
-            }
-
-            track.innerHTML = `<div class="carousel-slide active">${html}</div>`;
-            counter.textContent = `${index + 1} / ${currentSlides.length}`;
-        }
-
-        window.moveSlide = function(direction) {
-            currentSlideIndex += direction;
-            if(currentSlideIndex >= currentSlides.length) currentSlideIndex = 0;
-            if(currentSlideIndex < 0) currentSlideIndex = currentSlides.length - 1;
-            renderSlide(currentSlideIndex);
-        }
-
-        /* --- UTILIDADES --- */
-        function setText(id, text) { const el = document.getElementById(id); if(el && text) el.textContent = text; }
-        
-        function getYouTubeID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        function getYouTubeThumb(url) {
-            const id = getYouTubeID(url);
-            return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : url;
-        }
-
-        window.closeModal = function() {
+        window.closeModal = () => {
             document.getElementById('modal').classList.remove('active');
-            document.getElementById('carousel-track').innerHTML = ''; // Detener video
+            document.getElementById('carousel-track').innerHTML = ''; // Parar videos
             document.body.style.overflow = 'auto';
         }
 
+        window.moveSlide = (dir) => {
+            currentSlideIndex = (currentSlideIndex + dir + currentSlides.length) % currentSlides.length;
+            renderSlide();
+        }
+
+        function renderSlide() {
+            const container = document.getElementById('carousel-track');
+            const url = currentSlides[currentSlideIndex];
+            
+            let content = '';
+            if(url.includes('youtu')) {
+                const id = getYouTubeID(url);
+                content = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1&mute=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else {
+                content = `<img src="${url}" alt="Project Slide">`;
+            }
+            
+            container.innerHTML = `<div class="slide active fade-in-up visible">${content}</div>`;
+        }
+
+        // Click outside closes modal
         document.getElementById('modal').addEventListener('click', (e) => {
-            if(e.target === document.getElementById('modal')) closeModal();
+           if(e.target === document.getElementById('modal')) closeModal();
         });
 
+        // Init
         init();
+
     </script>
 </body>
 </html>
-</body>
-
-</html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
