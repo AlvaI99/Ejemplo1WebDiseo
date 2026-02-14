@@ -172,15 +172,27 @@
     });
 
     Papa.parse(URL_PROYECTOS, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            projectsData = results.data;
-            renderProjects(projectsData);
-            document.body.classList.remove('loading');
-        }
-    });
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+        // Normalizamos las llaves de cada proyecto para que siempre sean minúsculas
+        projectsData = results.data.map(row => {
+            const nuevoProyecto = {};
+            for (let key in row) {
+                // Convertimos el encabezado a minúsculas, quitamos acentos y espacios
+                const cleanKey = key.trim().toLowerCase()
+                                 .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                nuevoProyecto[cleanKey] = row[key];
+            }
+            return nuevoProyecto;
+        });
+
+        console.log("Proyectos procesados y normalizados:", projectsData);
+        renderProjects(projectsData);
+        document.body.classList.remove('loading');
+    }
+});
 }
 
         function applyProfile(data) {
@@ -256,30 +268,38 @@
         }
 
         function renderProjects(projects) {
-            const container = document.getElementById('projects-container');
-            container.innerHTML = projects.map((p, index) => {
-                // Obtener primera imagen para la portada
-                const firstImg = p.galeria ? p.galeria.split(',')[0].trim() : '';
-                // Detectar si es video de youtube para poner icono
-                const isVideo = firstImg.includes('youtube') || firstImg.includes('youtu.be');
-                const thumbnail = isVideo ? getYouTubeThumb(firstImg) : firstImg;
-                const iconOverlay = isVideo ? '<div class="play-icon">▶</div>' : '';
+    const container = document.getElementById('projects-container');
+    if (!container) return;
 
-                return `
-                <article class="card" onclick="openModal(${index})">
-                    <div class="card-img">
-                        <img src="${thumbnail}" loading="lazy" alt="${p.titulo}">
-                        ${iconOverlay}
-                    </div>
-                    <div class="card-body">
-                        <span class="card-date">${p.fecha}</span>
-                        <h3 class="card-title">${p.titulo}</h3>
-                        <p class="card-desc">${p.desc_corta}</p>
-                        <span class="card-link">Ver detalles &rarr;</span>
-                    </div>
-                </article>
-            `}).join('');
-        }
+    container.innerHTML = projects.map((p, index) => {
+        // Usamos nombres de variables consistentes con lo que normalizamos arriba
+        const titulo = p.titulo || "Sin título";
+        const fecha = p.fecha || "";
+        const descCorta = p.desc_corta || "";
+        
+        // Manejo de imagen/galería
+        const rawGaleria = p.galeria || p.imagen || ""; // Soporta ambas columnas
+        const firstImg = rawGaleria ? rawGaleria.split(',')[0].trim() : 'https://via.placeholder.com/400x300?text=Sin+Imagen';
+        
+        const isVideo = firstImg.includes('youtube') || firstImg.includes('youtu.be');
+        const thumbnail = isVideo ? getYouTubeThumb(firstImg) : firstImg;
+        const iconOverlay = isVideo ? '<div class="play-icon">▶</div>' : '';
+
+        return `
+            <article class="card" onclick="openModal(${index})">
+                <div class="card-img">
+                    <img src="${thumbnail}" loading="lazy" alt="${titulo}">
+                    ${iconOverlay}
+                </div>
+                <div class="card-body">
+                    <span class="card-date">${fecha}</span>
+                    <h3 class="card-title">${titulo}</h3>
+                    <p class="card-desc">${descCorta}</p>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
 
         /* --- LÓGICA DEL CARRUSEL --- */
         
@@ -364,6 +384,7 @@
 </body>
 
 </html>
+
 
 
 
