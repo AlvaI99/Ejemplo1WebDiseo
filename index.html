@@ -189,44 +189,64 @@
             });
         }
 
-        function applyProfile(data) {
+function applyProfile(data) {
     const perfil = {};
     
-    // 1. Construir el objeto perfil limpiando espacios y convirtiendo a minúsculas
+    // 1. Limpieza profunda de los datos del Excel
     data.forEach(row => { 
-        if (row[0] && row[0].trim() !== "" && !row[0].startsWith('---')) { 
-            // Guardamos la clave en minúsculas para que sea fácil de buscar
-            const clave = row[0].trim().toLowerCase();
-            const valor = row[1] ? row[1].trim() : "";
-            perfil[clave] = valor;
+        if (row[0] && row[0].toString().trim() !== "") { 
+            // Limpiamos la clave: quitamos espacios, pasamos a minúsculas y quitamos acentos si los hubiera
+            const clave = row[0].toString().trim().toLowerCase()
+                          .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const valor = row[1] ? row[1].toString().trim() : "";
+            
+            // Ignoramos filas que sean solo separadores
+            if (!clave.startsWith('---')) {
+                perfil[clave] = valor;
+            }
         } 
     });
 
-    // --- DEBUG: Descomenta la línea de abajo para ver en la consola qué está leyendo la web ---
-    // console.log("Datos del perfil cargados:", perfil);
+    // --- DIAGNÓSTICO EN CONSOLA ---
+    // Esto te dirá exactamente qué variables encontró la web. 
+    // Abre la consola (F12) y busca el mensaje "Variables detectadas".
+    console.log("Variables detectadas en la hoja Perfil:", perfil);
 
-    // 2. Asignación de Textos (con IDs exactos del HTML)
-    // Usamos el operador || para que si falta el dato, no rompa el script
-    if (perfil.nombre) document.getElementById('p-nombre').textContent = perfil.nombre;
-    if (perfil.rol) document.getElementById('p-rol').textContent = perfil.rol;
-    if (perfil.ubicacion) document.getElementById('p-ubicacion').textContent = perfil.ubicacion;
-    if (perfil.experiencia) document.getElementById('p-experiencia').textContent = perfil.experiencia;
-    if (perfil.especialidad) document.getElementById('p-especialidad').textContent = perfil.especialidad;
-    if (perfil.disponibilidad) document.getElementById('p-disponibilidad').textContent = perfil.disponibilidad;
+    // 2. Función interna para asignar texto de forma segura
+    const asignar = (id, claveSheet) => {
+        const el = document.getElementById(id);
+        if (el) {
+            // Intentamos buscar la clave exacta o una que se le parezca
+            const valor = perfil[claveSheet];
+            if (valor !== undefined && valor !== "") {
+                el.textContent = valor;
+                console.log(`✅ Asignado: ${claveSheet} -> ${id}`);
+            } else {
+                console.warn(`⚠️ No se encontró valor para: ${claveSheet}`);
+            }
+        }
+    };
 
-    // 3. Imagen de Perfil
+    // 3. Asignación de Textos (IDs del HTML vs Claves del Excel)
+    asignar('p-nombre', 'nombre');
+    asignar('p-rol', 'rol');
+    asignar('p-ubicacion', 'ubicacion');
+    asignar('p-experiencia', 'experiencia');
+    asignar('p-especialidad', 'especialidad');
+    asignar('p-disponibilidad', 'disponibilidad');
+
+    // 4. Imagen de Perfil
     if (perfil.foto) document.getElementById('p-foto').src = perfil.foto;
 
-    // 4. Lógica de Contacto y Footer
+    // 5. Footer / Contacto
     const contactoTexto = document.getElementById('p-contacto-texto');
     if (contactoTexto) {
-        let info = "";
-        if (perfil.telefono) info += `Tel: ${perfil.telefono} `;
-        if (perfil.email) info += `| Email: ${perfil.email}`;
-        contactoTexto.textContent = info;
+        const tel = perfil.telefono || "";
+        const mail = perfil.email || "";
+        contactoTexto.textContent = (tel || mail) ? `Contacto: ${tel} ${mail}` : "";
     }
 
-    // 5. Colores y Estilos (Lo que ya te funcionaba)
+    // 6. Estilos y Colores (Lo que ya te funcionaba)
     const root = document.documentElement.style;
     if (perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
     if (perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
@@ -235,28 +255,23 @@
     // Borde de la foto (Fila 24 de tu Excel)
     const radiusKey = 'headerphoto_border-radius';
     if (perfil[radiusKey] !== undefined) {
-        const val = perfil[radiusKey].toString().trim();
-        const finalRadius = val === "" || val === "0" ? "0px" : (val.includes('%') ? val : val + "px");
+        const val = perfil[radiusKey].toString();
+        const finalRadius = (val === "" || val === "0") ? "0px" : (val.includes('%') ? val : val + "px");
         document.querySelector('.header-photo').style.borderRadius = finalRadius;
     }
 
-    // 6. Generar Redes Sociales
+    // 7. Redes Sociales
     const socialContainer = document.getElementById('social-container');
     if (socialContainer) {
         socialContainer.innerHTML = '';
         const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
-
         redes.forEach(red => {
             let link = perfil[red];
             if (link && link.length > 3) {
                 if (red === 'email' && !link.includes('mailto:')) link = `mailto:${link}`;
                 if (red === 'whatsapp') link = `https://wa.me/${link.replace(/\+/g,'').replace(/\s/g,'')}`;
-                
                 const iconPath = ICONS[red] || ICONS.email;
-                socialContainer.innerHTML += `
-                    <a href="${link}" target="_blank" class="social-btn" title="${red}">
-                        <svg viewBox="0 0 24 24">${iconPath}</svg>
-                    </a>`;
+                socialContainer.innerHTML += `<a href="${link}" target="_blank" class="social-btn"><svg viewBox="0 0 24 24">${iconPath}</svg></a>`;
             }
         });
     }
@@ -371,6 +386,7 @@
 </body>
 
 </html>
+
 
 
 
