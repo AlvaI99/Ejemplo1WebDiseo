@@ -191,58 +191,75 @@
 
         function applyProfile(data) {
     const perfil = {};
+    
+    // 1. Construir el objeto perfil limpiando espacios y convirtiendo a minúsculas
     data.forEach(row => { 
-        // Solo procesa si la celda A tiene texto y no es un separador como "---"
-        if(row[0] && !row[0].startsWith('---')) { 
-            perfil[row[0].trim().toLowerCase()] = row[1] ? row[1].trim() : ""; 
+        if (row[0] && row[0].trim() !== "" && !row[0].startsWith('---')) { 
+            // Guardamos la clave en minúsculas para que sea fácil de buscar
+            const clave = row[0].trim().toLowerCase();
+            const valor = row[1] ? row[1].trim() : "";
+            perfil[clave] = valor;
         } 
     });
 
-    // 1. Textos y Fotos
-    setText('p-nombre', perfil.nombre);
-    setText('p-rol', perfil.rol);
-    setText('p-ubicacion', perfil.ubicacion);
-    setText('p-experiencia', perfil.experiencia);
-    setText('p-especialidad', perfil.especialidad);
-    setText('p-disponibilidad', perfil.disponibilidad);
-    
-    if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
+    // --- DEBUG: Descomenta la línea de abajo para ver en la consola qué está leyendo la web ---
+    // console.log("Datos del perfil cargados:", perfil);
 
-    // 2. Lógica de Contacto (Footer)
-    if(perfil.telefono || perfil.email) {
-        setText('p-contacto-texto', `También puedes escribirme a: ${perfil.telefono || ''} ${perfil.email || ''}`);
+    // 2. Asignación de Textos (con IDs exactos del HTML)
+    // Usamos el operador || para que si falta el dato, no rompa el script
+    if (perfil.nombre) document.getElementById('p-nombre').textContent = perfil.nombre;
+    if (perfil.rol) document.getElementById('p-rol').textContent = perfil.rol;
+    if (perfil.ubicacion) document.getElementById('p-ubicacion').textContent = perfil.ubicacion;
+    if (perfil.experiencia) document.getElementById('p-experiencia').textContent = perfil.experiencia;
+    if (perfil.especialidad) document.getElementById('p-especialidad').textContent = perfil.especialidad;
+    if (perfil.disponibilidad) document.getElementById('p-disponibilidad').textContent = perfil.disponibilidad;
+
+    // 3. Imagen de Perfil
+    if (perfil.foto) document.getElementById('p-foto').src = perfil.foto;
+
+    // 4. Lógica de Contacto y Footer
+    const contactoTexto = document.getElementById('p-contacto-texto');
+    if (contactoTexto) {
+        let info = "";
+        if (perfil.telefono) info += `Tel: ${perfil.telefono} `;
+        if (perfil.email) info += `| Email: ${perfil.email}`;
+        contactoTexto.textContent = info;
     }
 
-    // 3. Colores y Estilos Dinámicos
+    // 5. Colores y Estilos (Lo que ya te funcionaba)
     const root = document.documentElement.style;
-    if(perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
-    if(perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
-    if(perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
+    if (perfil.color_acento) root.setProperty('--accent', perfil.color_acento);
+    if (perfil.color_fondo) root.setProperty('--bg-color', perfil.color_fondo);
+    if (perfil.color_texto) root.setProperty('--text-main', perfil.color_texto);
     
-    // Aplicar el border-radius que pusiste en la fila 24
-    if(perfil['headerphoto_border-radius'] !== undefined) {
-        const radius = perfil['headerphoto_border-radius'] || '50%'; // 50% por defecto si está vacío
-        document.querySelector('.header-photo').style.borderRadius = radius.includes('%') ? radius : radius + 'px';
+    // Borde de la foto (Fila 24 de tu Excel)
+    const radiusKey = 'headerphoto_border-radius';
+    if (perfil[radiusKey] !== undefined) {
+        const val = perfil[radiusKey].toString().trim();
+        const finalRadius = val === "" || val === "0" ? "0px" : (val.includes('%') ? val : val + "px");
+        document.querySelector('.header-photo').style.borderRadius = finalRadius;
     }
 
-    // 4. Redes Sociales
+    // 6. Generar Redes Sociales
     const socialContainer = document.getElementById('social-container');
-    socialContainer.innerHTML = '';
-    const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
+    if (socialContainer) {
+        socialContainer.innerHTML = '';
+        const redes = ['instagram', 'tiktok', 'facebook', 'linkedin', 'behance', 'whatsapp', 'email'];
 
-    redes.forEach(red => {
-        let link = perfil[red];
-        if(link && link.length > 5) { // Solo si hay un link real
-            if(red === 'email') link = `mailto:${link}`;
-            if(red === 'whatsapp') link = `https://wa.me/${link.replace(/\+/g,'').replace(/\s/g,'')}`;
-            
-            const iconPath = ICONS[red] || ICONS.email;
-            socialContainer.innerHTML += `
-                <a href="${link}" target="_blank" class="social-btn" title="${red}">
-                    <svg viewBox="0 0 24 24">${iconPath}</svg>
-                </a>`;
-        }
-    });
+        redes.forEach(red => {
+            let link = perfil[red];
+            if (link && link.length > 3) {
+                if (red === 'email' && !link.includes('mailto:')) link = `mailto:${link}`;
+                if (red === 'whatsapp') link = `https://wa.me/${link.replace(/\+/g,'').replace(/\s/g,'')}`;
+                
+                const iconPath = ICONS[red] || ICONS.email;
+                socialContainer.innerHTML += `
+                    <a href="${link}" target="_blank" class="social-btn" title="${red}">
+                        <svg viewBox="0 0 24 24">${iconPath}</svg>
+                    </a>`;
+            }
+        });
+    }
 }
 
         function renderProjects(projects) {
@@ -354,6 +371,7 @@
 </body>
 
 </html>
+
 
 
 
