@@ -111,10 +111,7 @@
             </div>
         </header>
          <section class="intro-section">
-            <p>
-                Bienvenido a mi espacio creativo. Aquí combino estrategia visual con estética funcional. 
-                Explora mis últimos trabajos donde la simplicidad se encuentra con el impacto.
-            </p>
+            <p id="p-ubicacion"></p>
         </section>
         <div id="projects-container" class="projects-grid"></div>
 
@@ -178,16 +175,16 @@
 
             // Cargar Proyectos
             Papa.parse(URL_PROYECTOS, {
-                download: true,
-                header: true, // Usa la primera fila como cabeceras
-                skipEmptyLines: true,
-                complete: function(results) {
-                    projectsData = results.data;
-                    renderProjects(projectsData);
-                    document.body.classList.remove('loading');
-                }
-            });
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            projectsData = results.data;
+            renderProjects(projectsData);
+            document.body.classList.remove('loading');
         }
+    });
+}
 
         function applyProfile(data) {
             const perfil = {};
@@ -222,7 +219,8 @@
             asignar('p-experiencia', 'experiencia');
             asignar('p-especialidad', 'especialidad');
             asignar('p-disponibilidad', 'disponibilidad');
-        
+            asignar('p-intro_section', 'intro_section');
+            
             if (perfil.foto) document.getElementById('p-foto').src = perfil.foto;
         
             // Contacto
@@ -369,6 +367,7 @@
 </body>
 
 </html>
+
 
 
 
