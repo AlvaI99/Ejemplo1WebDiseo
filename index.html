@@ -179,7 +179,17 @@
 
         .card-body { padding: 1.5rem; }
         .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .card-date { font-size: 0.8rem; opacity: 0.6; font-family: monospace; }
+        .card-date { 
+        background: var(--accent);
+        color: #000;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        }
         
         .card-title {
             font-family: var(--font-title);
@@ -277,11 +287,16 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header-content { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
-            .profile-photo { width: 200px; margin: 0 auto; }
-            .stats-grid { text-align: left; }
-            .carousel-wrapper { aspect-ratio: 1/1; }
+        .header-content { 
+            display: flex; 
+            flex-direction: column-reverse; /* Esto sube la foto */
+            text-align: center; 
+            gap: 2rem; 
         }
+        .profile-photo { width: 200px; margin: 0 auto; }
+        .stats-grid { text-align: left; }
+        .carousel-wrapper { aspect-ratio: 1/1; }
+    }
     </style>
 </head>
 <body class="loading">
@@ -321,6 +336,13 @@
 
     <main>
         <div class="container">
+        <p id="p-intro-section" style="font-size: 1.2rem; margin-bottom: 3rem; max-width: 800px;"></p>
+
+        <h2 style="margin-bottom: 2rem; font-family: var(--font-title);">Mis Proyectos</h2>
+        <div id="projects-container" class="projects-grid">
+            </div>
+    </div>
+        <div class="container">
             <h2 style="margin-bottom: 2rem; font-family: var(--font-title);">Mis Proyectos</h2>
             <div id="projects-container" class="projects-grid">
                 </div>
@@ -330,7 +352,7 @@
     <footer>
         <div class="container">
             <h3 style="margin-bottom: 0.5rem; color: var(--accent);">Hablemos</h3>
-            <p style="margin-bottom: 2rem;">¿Tienes una idea? Creemos algo increíble.</p>
+            <p id="p-footer-text" style="margin-bottom: 2rem;">¿Tienes una idea? Creemos algo increíble.</p> 
             
             <div id="social-container" class="social-container">
                 </div>
@@ -399,12 +421,20 @@
             });
 
             // Textos Simples
-            ['nombre', 'rol', 'ubicacion', 'experiencia', 'especialidad', 'disponibilidad', 'bio'].forEach(key => {
+            ['nombre', 'rol', 'ubicacion', 'experiencia', 'especialidad', 'disponibilidad', 'bio', 'intro_section'].forEach(key => {
                 if(perfil[key]) {
-                    const el = document.getElementById(key === 'bio' ? 'p-bio' : `p-${key}`);
+                   const idMap = {
+                        'bio': 'p-bio',
+                        'intro_section': 'p-intro-section'
+                    };
+                    const elId = idMap[key] || `p-${key}`;
+                    const el = document.getElementById(elId);
                     if(el) el.textContent = perfil[key];
                 }
             });
+            
+            if (document.getElementById('p-footer-text')) {
+                document.getElementById('p-footer-text').textContent = perfil.footer_text || "¿Tienes una idea? Creemos algo increíble.";}
             
             if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
 
@@ -548,4 +578,5 @@
     </script>
 </body>
 </html>
+
 
