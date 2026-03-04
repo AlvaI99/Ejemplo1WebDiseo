@@ -483,35 +483,49 @@
         }
 
         function renderProjects(data) {
-            projectsData = data;
-            const container = document.getElementById('projects-container');
-            
-            container.innerHTML = data.map((p, index) => {
-                if(!p.titulo) return '';
-                
-                // Procesar imagen principal o miniatura video
-                const mediaList = p.galeria ? p.galeria.split(',') : [p.imagen];
-                const firstMedia = mediaList[0].trim();
-                const isVideo = firstMedia.includes('youtu');
-                const thumb = isVideo ? getYouTubeThumb(firstMedia) : firstMedia;
-                
-                return `
-                <article class="card" onclick="openModal(${index})">
-                    <div class="card-thumb">
-                        <img src="${thumb}" alt="${p.titulo}">
-                        ${isVideo ? '<div class="play-icon">▶</div>' : ''}
-                    </div>
-                    <div class="card-body">
-                        <div class="card-meta">
-                            <span class="card-date">${p.fecha || ''}</span>
-                        </div>
-                        <h3 class="card-title">${p.titulo}</h3>
-                        <p>${p.desc_corta || ''}</p>
-                    </div>
-                </article>
-                `;
-            }).join('');
+    projectsData = data;
+    const container = document.getElementById('projects-container');
+    
+    container.innerHTML = data.map((p, index) => {
+        if(!p.titulo) return '';
+        
+        const mediaList = p.galeria ? p.galeria.split(',') : [p.imagen];
+        const firstMedia = mediaList[0].trim();
+        const isVideoYT = firstMedia.includes('youtu');
+        const isDrive = firstMedia.includes('drive.google.com');
+        
+        let thumb = firstMedia;
+        let isPlayable = isVideoYT;
+
+        // Si es YouTube, sacamos su miniatura
+        if (isVideoYT) {
+            thumb = getYouTubeThumb(firstMedia);
+        } 
+        // Si es Drive, armamos el link directo para imagen
+        else if (isDrive) {
+            const driveId = getDriveID(firstMedia);
+            if (driveId) thumb = `https://drive.google.com/uc?export=view&id=${driveId}`;
+            // Asumimos que si es drive puede ser un PDF/Video, le ponemos el icono de play por si acaso
+            isPlayable = true; 
         }
+        
+        return `
+        <article class="card" onclick="openModal(${index})">
+            <div class="card-thumb">
+                <img src="${thumb}" alt="${p.titulo}" onerror="this.src='https://via.placeholder.com/600x400?text=Cargando+Drive...'">
+                ${isPlayable ? '<div class="play-icon">▶</div>' : ''}
+            </div>
+            <div class="card-body">
+                <div class="card-meta">
+                    <span class="card-date">${p.fecha || ''}</span>
+                </div>
+                <h3 class="card-title">${p.titulo}</h3>
+                <p>${p.desc_corta || ''}</p>
+            </div>
+        </article>
+        `;
+    }).join('');
+}
 
         /* --- LÓGICA DE VIDEO Y CARRUSEL --- */
         function getYouTubeID(url) {
@@ -542,7 +556,10 @@
             document.getElementById('modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-
+        function getDriveID(url) {
+    const match = url.match(/\/d\/(.+?)\/|(?:id=)([^&]+)/);
+    return match ? (match[1] || match[2]) : null;
+}
         function renderSlide() {
             const track = document.getElementById('carousel-track');
             const url = currentSlides[currentSlideIndex];
@@ -551,9 +568,17 @@
             if(url.includes('youtu')) {
                 const id = getYouTubeID(url);
                 content = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
-            } else {
-                content = `<img src="${url}">`;
-            }
+            } else if (url.includes('drive.google.com')) {
+        const id = getDriveID(url);
+        if (id) {
+            content = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay" allowfullscreen></iframe>`;
+        } else {
+            content = `<p style="color:white; text-align:center;">Enlace de Drive no válido</p>`;
+        }
+    } 
+    else {
+        content = `<img src="${url}">`;
+    }
             
             track.innerHTML = `<div class="slide active">${content}</div>`;
         }
@@ -578,6 +603,7 @@
     </script>
 </body>
 </html>
+
 
 
 
