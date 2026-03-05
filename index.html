@@ -89,16 +89,16 @@
             color: #444;
         }
 
-        /* Contenedor oculto para datos no usados pero mantenidos por si acaso */
         .hidden-data { display: none; }
 
-        /* --- BODY (PROYECTOS) --- */
         main {
             padding: 2rem 0 6rem;
         }
 
         .projects-wrapper {
-            max-width: 100%;
+            margin-left: auto;
+            width: 100%;
+            max-width: 650px; 
         }
 
         #p-intro-section {
@@ -283,13 +283,38 @@
                 gap: 2rem;
             }
             .profile-photo { aspect-ratio: auto; max-height: 50vh; }
+            
+            /* Restablecemos el contenedor para que ocupe todo el ancho en móvil */
+            .projects-wrapper {
+                max-width: 100%;
+                margin-left: 0;
+            }
+
+            /* Cambiamos a flex para apilar los elementos verticalmente */
             .card {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 0;
                 padding: 2rem 0;
             }
-            .card-thumb { order: -1; aspect-ratio: auto; }
+            
+            /* Hacemos la imagen más pequeña, la mandamos arriba y la alineamos a la derecha */
+            .card-thumb { 
+                order: -1; /* Mueve la imagen arriba del texto */
+                width: 75%; /* Reduce el tamaño para que no ocupe todo el ancho */
+                margin-left: auto; /* La empuja hacia la derecha */
+                aspect-ratio: 16/10; 
+                margin-bottom: 1.5rem;
+            }
+            
+            /* El texto se acomoda naturalmente debajo */
+            .card-content {
+                width: 100%;
+                align-items: flex-start;
+            }
+
             #p-intro-section { max-width: 100%; margin-bottom: 3rem; }
+            
             .footer-content {
                 flex-direction: column;
                 align-items: flex-start;
@@ -560,4 +585,5 @@
     </script>
 </body>
 </html>
+
 
