@@ -3,583 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portafolio Minimalista</title>
+    <title>Portafolio Minimalista | Vista Dinámica</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 
     <style>
-        /* --- VARIABLES DINÁMICAS --- */
         :root {
-            /* Colores por defecto adaptados al mockup minimalista */
-            --header-bg: transparent;
-            --header-text: #333333;
-            --body-bg: #F4F3EE; /* Tono beige claro de la imagen */
-            --body-text: #333333;
-            --footer-bg: #6B705C; /* Verde oliva del footer */
-            --footer-text: #ffffff;
-            --accent: #1A2E1F; /* Verde oscuro para botones */
+            --header-bg: transparent; --header-text: #333333;
+            --body-bg: #F4F3EE; --body-text: #333333;
+            --footer-bg: #6B705C; --footer-text: #ffffff;
+            --accent: #1A2E1F; 
             
             --font-title: 'Playfair Display', serif;
             --font-body: 'Inter', sans-serif;
-            --radius: 0px; /* Bordes rectos para un look más editorial */
+            --radius: 0px; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        body { 
-            font-family: var(--font-body); 
-            line-height: 1.6; 
-            background-color: var(--body-bg);
-            color: var(--body-text);
-            overflow-x: hidden;
-            transition: opacity 0.5s;
-        }
+        body { font-family: var(--font-body); line-height: 1.6; background-color: var(--body-bg); color: var(--body-text); overflow-x: hidden; transition: opacity 0.5s; }
         body.loading { opacity: 0; pointer-events: none; }
-        
         a { text-decoration: none; color: inherit; transition: 0.3s; }
         ul { list-style: none; }
-        img { display: block; max-width: 100%; }
+        img, iframe { display: block; max-width: 100%; border: none; }
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
+        .container { max-width: 1265px; margin: 0 auto; padding: 0 2rem; }
 
         /* --- TOP NAV --- */
-        .top-nav {
-            padding: 2rem 2rem 0;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .site-title {
-            font-family: var(--font-body);
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        .top-nav { padding: 2rem 0; }
+        .nav-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1265px; margin: 0 auto; padding: 0 4vw; }
+        .site-title { font-family: var(--font-body); font-size: 1rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+        .back-link { font-weight: 600; font-size: 0.9rem; text-decoration: underline; text-underline-offset: 4px; display: none; cursor: pointer; }
 
-        /* --- HEADER --- */
-        header {
-            background-color: var(--header-bg);
-            color: var(--header-text);
-            padding: 3rem 0 5rem;
-        }
+        /* VISTAS PRINCIPALES */
+        #portfolio-main-view, #project-page-view { transition: opacity 0.3s ease; }
+        #project-page-view { display: none; opacity: 0; padding-top: 2rem; }
+        #project-page-view.active { display: block; opacity: 1; }
+        #portfolio-main-view.hidden { display: none; opacity: 0; }
 
-        .header-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4rem;
-            align-items: start;
-            margin-top: 2rem;
-        }
+        /* --- PORTFOLIO MAIN VIEW (Home) --- */
+        header { background-color: var(--header-bg); color: var(--header-text); padding: 1rem 0 5rem; }
+        .header-content { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+        .profile-photo { width: 100%; height: auto; aspect-ratio: 3/4; object-fit: cover; }
+        .bio-text { font-family: var(--font-title); font-size: 1.4rem; line-height: 1.5; color: #444; }
 
-        .profile-photo {
-            width: 100%;
-            height: auto;
-            aspect-ratio: 3/4;
-            object-fit: cover;
-        }
-
-        .bio-text {
-            font-family: var(--font-title);
-            font-size: 1.4rem;
-            line-height: 1.5;
-            color: #444;
-        }
-
-        .hidden-data { display: none; }
-
-        main {
-            padding: 2rem 0 6rem;
-        }
-
-        .projects-wrapper {
-            margin-left: auto;
-            margin-right: 0;
-            width: 100%;
-            max-width: 650px; 
-        }
-
-        #p-intro-section {
-            text-align: left;
-            margin: 0 0 4rem 0; 
-            width: 100%;
-            max-width: 100%;
-            font-size: 1.6rem;
-            font-style: italic;
-            font-family: var(--font-title);
-            line-height: 1.3;
-            color: var(--body-text);
-        }
-        
-        .projects-grid {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card {
-            background: transparent;
-            border-top: 1px solid rgba(0,0,0,0.2);
-            padding: 3rem 0;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-            display: grid;
-            grid-template-columns: 1fr 240px;
-            gap: 3rem;
-            align-items: start;
-        }}
-
+        main { padding: 2rem 0 6rem; }
+        .projects-wrapper { margin-left: auto; margin-right: 0; width: 100%; max-width: 565px; }
+        #p-intro-section { text-align: left; margin: 0 0 4rem 0; width: 100%; font-size: 1.6rem; font-style: italic; font-family: var(--font-title); line-height: 1.3; color: var(--body-text); }
+        .card { background: transparent; border-top: 1px solid rgba(0,0,0,0.2); padding: 3rem 0; cursor: pointer; transition: opacity 0.3s ease; display: grid; grid-template-columns: 1fr 240px; gap: 3rem; align-items: start; }
         .card:hover { opacity: 0.7; }
-        
-        .card-content {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            height: 100%;
-        }
-
-        .card-date {
-            font-family: var(--font-body);
-            color: var(--body-text);
-            font-weight: 700;
-            font-size: 0.75rem;
-            letter-spacing: 0.5px;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-family: var(--font-title);
-            font-size: 2.2rem;
-            margin-bottom: 2rem;
-            line-height: 1.1;
-            font-weight: 400;
-        }
-
-        .read-btn {
-            background-color: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-family: var(--font-body);
-            font-weight: 600;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
-
-        .card-thumb {
-            aspect-ratio: 16/10;
-            width: 100%;
-            background: #e0e0e0;
-            position: relative;
-        }
-        
-        .card-thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .play-icon {
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px; height: 40px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem;
-            backdrop-filter: blur(2px);
-        }
+        .card-content { display: flex; flex-direction: column; align-items: flex-start; }
+        .card-date { font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; margin-bottom: 1rem; }
+        .card-title { font-family: var(--font-title); font-size: 2.2rem; margin-bottom: 2rem; line-height: 1.1; font-weight: 400; }
+        .read-btn { background-color: var(--accent); color: white; border: none; padding: 8px 16px; font-weight: 600; font-size: 0.75rem; }
+        .card-thumb { aspect-ratio: 16/10; width: 100%; position: relative; }
+        .card-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
         /* --- FOOTER --- */
-        footer {
-            background-color: var(--footer-bg);
-            color: var(--footer-text);
-            padding: 3rem 0;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            font-size: 0.9rem;
-        }
-
+        footer { background-color: var(--footer-bg); color: var(--footer-text); padding: 3rem 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        .footer-content { display: flex; justify-content: space-between; align-items: flex-end; font-size: 0.9rem; }
         .footer-left p { margin-bottom: 0.2rem; }
         .footer-left .site-title-footer { font-weight: 700; margin-bottom: 0.5rem; }
+        .social-container { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .social-text-link { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; }
 
-        .social-container {
-            display: flex; gap: 1.5rem; flex-wrap: wrap;
+        /* =========================================
+           --- NUEVA VISTA DE PÁGINA DE PROYECTO ---
+           ========================================= */
+        #project-page-content { padding-bottom: 0; }
+
+        /* Estilos Comunes de Sección */
+        .project-section { padding: 4rem 0; border-top: 1px solid rgba(0,0,0,0.1); }
+        .project-section:first-of-type { border-top: none; padding-top: 0; }
+        
+        .s-title { font-family: var(--font-title); font-size: 1.1rem; text-transform: uppercase; font-weight: 600; letter-spacing: 2px; margin-bottom: 2rem; color: #666; }
+        .s-text { font-family: var(--font-body); font-size: 1rem; color: #444; line-height: 1.7; white-space: pre-line; } /* pre-line respeta saltos de línea */
+        
+        .media-container { width: 100%; background: #e0e0e0; overflow: hidden; position: relative; }
+        .media-container img { width: 100%; height: auto; object-fit: cover; }
+        
+        /* Helpers para Proporciones de Multimedia */
+        .ratio-16-9 { aspect-ratio: 16/9; }
+        .ratio-3-4 { aspect-ratio: 3/4; }
+
+	.dynamic-sections-wrapper {
+            background-color: var(--footer-bg); /* Toma el verde oliva */
+            color: var(--body-bg); /* Toma el crema */
+            
+            /* Truco para que el fondo ocupe el 100vw (toda la pantalla) saliendo del container */
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            padding: 4rem 0; 
+        }
+	
+	.dynamic-sections-wrapper .project-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-left: 4vw;
+            padding-right: 4vw;
+            border-top: 1px solid rgba(255,255,255,0.1); /* Línea separadora casi transparente */
+        }
+        
+        .dynamic-sections-wrapper .project-section:first-child { border-top: none; padding-top: 0; }
+
+        /* Ajustamos los colores de los textos dentro de la zona verde */
+        .dynamic-sections-wrapper .s-title { color: var(--body-bg); opacity: 0.9; }
+        .dynamic-sections-wrapper .s-text { color: var(--body-bg); opacity: 0.9; }
+
+        /* --- SECCIÓN 0: INTRO (Siempre igual) --- */
+        .section-intro { display: grid; grid-template-columns: 1.2fr 1fr; gap: 5rem; align-items: start; padding-bottom: 6rem; }
+        .intro-media { width: 100%; aspect-ratio: 3/4; }
+        
+        .intro-text-block .card-date { margin-bottom: 0.5rem; display: block; }
+        .intro-text-block .card-title { font-size: 3.5rem; margin-bottom: 3rem; }
+        .intro-text-block .s-text { font-size: 1.1rem; color: #333; }
+
+        /* --- MODELO FULL (Media Ancho Completo) --- */
+        .section-full { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; /* Todo empieza a la izquierda por defecto */
+        }
+        .section-full .s-title { 
+            margin-bottom: 2rem; 
+        }
+        .section-full .media-container { 
+            width: 100%; /* Ocupa todo el ancho seguro del contenedor */
+            margin-bottom: 3rem; 
+            background: #e0e0e0;
+        }
+        .section-full .s-text-block {
+            align-self: flex-end; /* Empuja solo el bloque de texto hacia la derecha */
+            width: 100%;
+            max-width: 500px; /* Evita que el texto cruce toda la pantalla */
+        }
+        .section-full .s-text { 
+            text-align: left; /* El texto en sí mantiene su lectura de izquierda a derecha */
+        }
+        /* --- MODELO GRID (Media Izquierda, Texto Derecha) --- */
+        .section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+        .section-grid .media-container { aspect-ratio: 16/10; }
+
+        /* --- MODELO GRID REVERSED (Texto Izquierda, Media Derecha) --- */
+        .section-grid-reversed { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+        .section-grid-reversed .media-container { order: 2; aspect-ratio: 16/10; }
+        .section-grid-reversed .s-text-block { order: 1; }
+
+        /* --- NAVEGACIÓN ENTRE PROYECTOS --- */
+        .project-navigation { 
+            background-color: var(--footer-bg); /* Fondo verde */
+            padding: 4rem 0 6rem; 
+            border-top: 1px solid rgba(255,255,255,0.2); /* Línea divisoria clara */
+            
+            /* Truco para que el fondo verde ocupe el 100vw saliendo del container */
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+        }
+        
+        .project-navigation .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 4vw;
         }
 
-        .social-text-link {
-            text-decoration: underline;
-            text-underline-offset: 4px;
-            font-weight: 600;
+        .nav-content { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-start;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 320px; /* Tamaño reducido para la maqueta */
+            text-decoration: none;
+            cursor: pointer;
             transition: opacity 0.3s;
         }
-        .social-text-link:hover { opacity: 0.7; }
 
-        /* --- MODAL (CARRUSEL MANTENIDO) --- */
-        .modal {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.95);
-            z-index: 999;
-            opacity: 0; pointer-events: none;
-            transition: 0.3s;
-            display: flex; justify-content: center; align-items: center;
-            padding: 1rem;
-        }
-        .modal.active { opacity: 1; pointer-events: all; }
+        .nav-item:hover { opacity: 0.7; }
+        .nav-item.disabled { display: none; } /* Oculta el espacio si no hay proyecto anterior/siguiente */
 
-        .modal-container {
-            width: 100%; max-width: 1000px;
-            background: #111;
-            overflow: hidden;
-            display: flex; flex-direction: column;
-            max-height: 90vh;
-        }
+        /* Empuja el proyecto 'Siguiente' a la derecha */
+        #nav-next { margin-left: auto; }
 
-        .carousel-wrapper {
-            position: relative;
-            background: #000;
-            aspect-ratio: 16/9;
+        .nav-thumb {
             width: 100%;
+            aspect-ratio: 16/10;
+            background: #e0e0e0;
+            margin-bottom: 1.5rem;
         }
 
-        .slide { display: none; width: 100%; height: 100%; align-items: center; justify-content: center; }
-        .slide.active { display: flex; }
-        .slide img { max-height: 100%; width: auto; }
-        .slide iframe { width: 100%; height: 100%; border: none; }
+        .nav-thumb img { width: 100%; height: 100%; object-fit: cover; }
 
-        .c-btn {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: rgba(0,0,0,0.5); color: white;
-            border: none; width: 40px; height: 40px; border-radius: 50%;
-            cursor: pointer; font-size: 1.2rem; z-index: 10;
+        .nav-title {
+            font-family: var(--font-title);
+            font-style: italic;
+            font-weight: 400;
+            color: var(--body-bg);
+            font-size: 1.4rem;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
         }
-        .c-btn:hover { background: #fff; color: black; }
-        .c-prev { left: 1rem; }
-        .c-next { right: 1rem; }
 
-        .modal-details { padding: 2rem; overflow-y: auto; color: #fff; }
-        .close-modal {
-            position: absolute; top: 1rem; right: 1rem;
-            background: rgba(255,255,255,0.2); color: white;
-            border: none; width: 32px; height: 32px; border-radius: 50%;
-            cursor: pointer; z-index: 20;
+        .nav-arrow-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.1); /* Botón semitransparente */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--body-bg);
+            border-radius: 4px;
+            font-size: 1.2rem;
+            transition: background-color 0.3s;
         }
-        .close-modal:hover { background: red; }
+
+        .nav-item:hover .nav-arrow-btn { background-color: rgba(255, 255, 255, 0.2); }
+
+	footer { 
+            /* AQUÍ MODIFICAS EL TONO GRIS EXACTO QUE ELLA QUIERA */
+            background-color: #8D9085; 
+            color: #ffffff; 
+            padding: 3rem 0; 
+            border-top: none; /* Quitamos el borde para que no choque con la navegación */
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .header-content {
-                grid-template-columns: 1fr;
-                gap: 2rem;
-            }
-            .profile-photo { aspect-ratio: auto; max-height: 50vh; }
+            .header-content, .section-intro, .section-grid, .section-grid-reversed { grid-template-columns: 1fr; gap: 2rem; }
+            .profile-photo, .intro-media { aspect-ratio: auto; max-height: 60vh; width: 100%; object-fit: cover; }
             
-            /* Restablecemos el contenedor para que ocupe todo el ancho en móvil */
-            .projects-wrapper {
-                max-width: 100%;
-                margin-left: 0;
-            }
+            /* Ajuste de proyectos en home */
+            .projects-wrapper { max-width: 100%; margin-left: 0; }
+            .card { display: flex; flex-direction: column; gap: 0; padding: 2rem 0; }
+            .card-thumb { order: -1; width: 85%; margin-left: auto; aspect-ratio: 16/10; margin-bottom: 1.5rem; }
+            .card-content { width: 100%; }
+            .card-title { font-size: 1.8rem; margin-bottom: 1.5rem; }
 
-            /* Cambiamos a flex para apilar los elementos verticalmente */
-            .card {
-                display: flex;
-                flex-direction: column;
-                gap: 0;
-                padding: 2rem 0;
-            }
-            
-            /* Hacemos la imagen más pequeña, la mandamos arriba y la alineamos a la derecha */
-            .card-thumb { 
-                order: -1; /* Mueve la imagen arriba del texto */
-                width: 75%; /* Reduce el tamaño para que no ocupe todo el ancho */
-                margin-left: auto; /* La empuja hacia la derecha */
-                aspect-ratio: 16/10; 
-                margin-bottom: 1.5rem;
-            }
-            
-            /* El texto se acomoda naturalmente debajo */
-            .card-content {
-                width: 100%;
-                align-items: flex-start;
-            }
-
-            #p-intro-section { max-width: 100%; margin-bottom: 3rem; }
-            
-            .footer-content {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 2rem;
-            }
+            /* Ajustes de página de proyecto */
+            .intro-text-block .card-title { font-size: 2.5rem; margin-bottom: 1.5rem; }
+            .section-full .media-container { width: 100%; left: 0; right: 0; margin-left: 0; margin-right: 0; }
+            .section-grid-reversed .media-container { order: -1; }
+            .section-grid-reversed .s-text-block { order: 0; }
+            .nav-content { flex-direction: column; gap: 4rem; }
+            .nav-item { max-width: 100%; }
+            #nav-next { margin-left: 0; }
         }
     </style>
 </head>
 <body class="loading">
 
     <div class="top-nav">
-        <h1 id="p-nombre" class="site-title">Cargando...</h1>
+        <div class="nav-wrapper">
+            <h1 id="p-nombre" class="site-title">Cargando...</h1>
+            <a id="back-to-portfolio" class="back-link" onclick="closeProjectPage()">← Volver</a>
+        </div>
     </div>
 
-    <header>
-        <div class="container header-content">
-            <div class="profile-photo-container">
+    <div id="portfolio-main-view">
+        <header>
+            <div class="container header-content">
                 <img id="p-foto" src="" alt="Perfil" class="profile-photo">
-            </div>
-            
-            <div class="profile-info">
                 <p class="bio-text" id="p-bio">...</p>
-                
-                <div class="hidden-data">
-                    <span id="p-rol"></span>
-                    <span id="p-ubicacion"></span>
-                    <span id="p-experiencia"></span>
-                    <span id="p-especialidad"></span>
-                    <span id="p-disponibilidad"></span>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <div class="projects-wrapper">
+                    <p id="p-intro-section"></p>
+                    <div id="projects-container" class="projects-grid"></div>
                 </div>
             </div>
-        </div>
-    </header>
+        </main>
+    </div>
 
-    <main>
-        <div class="container">
-            <div class="projects-wrapper">
-                <p id="p-intro-section"></p>
-                <div id="projects-container" class="projects-grid"></div>
+    <div id="project-page-view">
+        <div class="container" id="project-page-content">
+            </div>
+        
+        <div class="project-navigation">
+            <div class="container nav-content">
+                <a id="nav-prev" class="nav-link">← Proyecto Anterior</a>
+                <a id="nav-next" class="nav-link">Siguiente Proyecto →</a>
             </div>
         </div>
-    </main>
+    </div>
     
     <footer>
         <div class="container footer-content">
             <div class="footer-left">
-                <p class="site-title-footer">Claudia Liz</p>
+                <p class="site-title-footer" id="p-nombre-footer">Claudia Liz</p>
                 <p>Copyright © 2026</p>
                 <p id="p-footer-text">claudializop@gmail.com</p> 
             </div>
-            <div id="social-container" class="social-container">
-                </div>
+            <div id="social-container" class="social-container"></div>
         </div>
     </footer>
 
-    <div id="modal" class="modal">
-        <div class="modal-container" onclick="event.stopPropagation()">
-            <div class="carousel-wrapper">
-                <button class="close-modal" onclick="closeModal()">×</button>
-                <button class="c-btn c-prev" onclick="moveSlide(-1)">❮</button>
-                <div id="carousel-track" style="width: 100%; height: 100%;"></div>
-                <button class="c-btn c-next" onclick="moveSlide(1)">❯</button>
-            </div>
-            <div class="modal-details">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
-                    <h2 id="m-title" style="margin:0; font-family: var(--font-title);"></h2>
-                    <span id="m-date" style="color: #aaa; font-family: var(--font-body); font-size: 0.8rem;"></span>
-                </div>
-                <p id="m-desc" style="white-space: pre-line; color: #ccc;"></p>
-            </div>
-        </div>
-    </div>
-    
     <script>
-        // --- CONFIGURACIÓN ---
         const SHEET_ID = '1z7X1BK7JfClh0hNNLktqEFCh7m4Ispmrs9LWagZ3BS4'; 
-        const GID_PROYECTOS = '699907319';
-        
-        // --- LÓGICA ---
         const URL_PERFIL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`; 
-        const URL_PROYECTOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_PROYECTOS}`;
+        const URL_PROYECTOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=699907319`;
 
         let projectsData = [];
-        let currentSlides = [];
-        let currentSlideIndex = 0;
+        let currentProjectIndex = -1;
 
         function init() {
-            Papa.parse(URL_PERFIL, {
-                download: true, header: true,
-                complete: (res) => processProfile(res.data)
-            });
-            Papa.parse(URL_PROYECTOS, {
-                download: true, header: true, skipEmptyLines: true,
-                complete: (res) => renderProjects(res.data)
-            });
+            Papa.parse(URL_PERFIL, { download: true, header: true, complete: (res) => processProfile(res.data) });
+            Papa.parse(URL_PROYECTOS, { download: true, header: true, skipEmptyLines: true, complete: (res) => { projectsData = res.data; renderProjects(projectsData); } });
         }
 
         function processProfile(data) {
             const perfil = {};
-            data.forEach(row => {
-                if(row['Clave (no tocar)']) perfil[row['Clave (no tocar)'].trim().toLowerCase()] = row['Valor'];
-            });
+            data.forEach(row => { if(row['Clave (no tocar)']) perfil[row['Clave (no tocar)'].trim().toLowerCase()] = row['Valor']; });
 
-            // Textos Simples
-            ['nombre', 'rol', 'ubicacion', 'experiencia', 'especialidad', 'disponibilidad', 'bio', 'intro_section'].forEach(key => {
-                if(perfil[key]) {
-                    const idMap = { 'bio': 'p-bio', 'intro_section': 'p-intro-section' };
-                    const elId = idMap[key] || `p-${key}`;
-                    const el = document.getElementById(elId);
-                    
-                    if(el) {
-                        el.innerHTML = perfil[key].replace(/\n/g, '<br>');
-                    }
-                }
+            ['nombre', 'bio', 'intro_section'].forEach(key => {
+                const idMap = { 'bio': 'p-bio', 'intro_section': 'p-intro-section', 'nombre': 'p-nombre' };
+                const el = document.getElementById(idMap[key]);
+                if(el && perfil[key]) el.innerHTML = perfil[key].replace(/\n/g, '<br>');
             });
-            
-            if (document.getElementById('p-footer-text') && perfil.email) {
-                document.getElementById('p-footer-text').textContent = perfil.email;
-            }
-            
+            if(perfil.nombre) document.getElementById('p-nombre-footer').textContent = perfil.nombre;
+            if(perfil.email) document.getElementById('p-footer-text').textContent = perfil.email;
             if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
 
-            // --- APLICAR COLORES POR SECCIÓN ---
+            // Colores
             const root = document.documentElement.style;
-            if(perfil.header_bg) root.setProperty('--header-bg', perfil.header_bg);
-            if(perfil.header_text) root.setProperty('--header-text', perfil.header_text);
             if(perfil.body_bg) root.setProperty('--body-bg', perfil.body_bg);
             if(perfil.body_text) root.setProperty('--body-text', perfil.body_text);
             if(perfil.footer_bg) root.setProperty('--footer-bg', perfil.footer_bg);
             if(perfil.footer_text) root.setProperty('--footer-text', perfil.footer_text);
             if(perfil.acento) root.setProperty('--accent', perfil.acento);
 
-            // --- REDES SOCIALES MODO MINIMALISTA ---
-            const socialContainer = document.getElementById('social-container');
-            const redes = ['linkedin', 'behance', 'instagram', 'whatsapp'];
-            
-            redes.forEach(red => {
+            // Redes
+            const container = document.getElementById('social-container');
+            ['linkedin', 'behance', 'instagram', 'whatsapp'].forEach(red => {
                 if(perfil[red]) {
-                    let href = perfil[red];
-                    let label = red;
-
-                    if(red === 'whatsapp') {
-                        const num = perfil[red].replace(/\D/g,'');
-                        href = `https://wa.me/${num}`;
-                        label = 'WhatsApp';
-                    }
-
-                    socialContainer.innerHTML += `
-                        <a href="${href}" target="_blank" class="social-text-link">
-                            ${label.charAt(0).toUpperCase() + label.slice(1)}
-                        </a>`;
+                    let href = red === 'whatsapp' ? `https://wa.me/${perfil[red].replace(/\D/g,'')}` : perfil[red];
+                    container.innerHTML += `<a href="${href}" target="_blank" class="social-text-link">${red.charAt(0).toUpperCase() + red.slice(1)}</a>`;
                 }
             });
             document.body.classList.remove('loading');
         }
 
         function renderProjects(data) {
-            projectsData = data;
             const container = document.getElementById('projects-container');
-            
             container.innerHTML = data.map((p, index) => {
                 if(!p.titulo) return '';
-                
-                const mediaList = p.galeria ? p.galeria.split(',') : [p.imagen];
-                const firstMedia = mediaList[0].trim();
-                const isVideoYT = firstMedia.includes('youtu');
-                const isDrive = firstMedia.includes('drive.google.com');
-                
-                let thumb = firstMedia;
-                let isPlayable = isVideoYT;
-
-                if (isVideoYT) {
-                    thumb = getYouTubeThumb(firstMedia);
-                } else if (isDrive) {
-                    const driveId = getDriveID(firstMedia);
-                    if (driveId) thumb = `https://drive.google.com/uc?export=view&id=${driveId}`;
-                    isPlayable = true; 
-                }
+                // Placeholder seguro si no hay imagen
+                const thumb = p.imagen || 'https://placehold.co/600x400/eeeeee/cccccc?text=Cargando...';
                 
                 return `
-                <article class="card" onclick="openModal(${index})">
+                <article class="card" onclick="openProjectPage(${index})">
                     <div class="card-content">
                         <span class="card-date">${p.fecha || ''}</span>
                         <h3 class="card-title">${p.titulo}</h3>
                         <button class="read-btn">Saber más</button>
                     </div>
                     <div class="card-thumb">
-                        <img src="${thumb}" alt="${p.titulo}" onerror="this.src='https://via.placeholder.com/600x400?text=Cargando...'">
-                        ${isPlayable ? '<div class="play-icon">▶</div>' : ''}
+                        <img src="${thumb}" alt="${p.titulo}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/cccccc?text=Cargando...'">
                     </div>
                 </article>
                 `;
             }).join('');
         }
 
-        /* --- LÓGICA DE VIDEO Y CARRUSEL --- */
-        function getYouTubeID(url) {
-            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
+        /* --- LÓGICA DE LA PÁGINA DE PROYECTO --- */
 
-        function getYouTubeThumb(url) {
-            const id = getYouTubeID(url);
-            return id ? `https://img.youtube.com/vi/${id}/hqdefault.jpg` : url;
-        }
-
-        function getDriveID(url) {
-            const match = url.match(/\/d\/(.+?)\/|(?:id=)([^&]+)/);
-            return match ? (match[1] || match[2]) : null;
-        }
-
-        window.openModal = function(index) {
-            const p = projectsData[index];
-            currentSlides = p.galeria ? p.galeria.split(',').map(s => s.trim()) : [p.imagen];
-            currentSlideIndex = 0;
-
-            document.getElementById('m-title').textContent = p.titulo;
-            document.getElementById('m-date').textContent = p.fecha;
-            document.getElementById('m-desc').textContent = p.desc_larga;
-
-            renderSlide();
+        // Helper para generar el HTML del multimedia (Imagen, YouTube o Drive)
+        function generateMediaHtml(url, ratioClass = 'ratio-16-9') {
+            if(!url) return '';
             
-            const btns = document.querySelectorAll('.c-btn');
-            btns.forEach(b => b.style.display = currentSlides.length > 1 ? 'block' : 'none');
-
-            document.getElementById('modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function renderSlide() {
-            const track = document.getElementById('carousel-track');
-            const url = currentSlides[currentSlideIndex];
-            
-            let content = '';
             if(url.includes('youtu')) {
-                const id = getYouTubeID(url);
-                content = `<iframe src="https://www.youtube.com/embed/${id}?autoplay=1" allowfullscreen></iframe>`;
+                const id = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/)?.[2];
+                return `<div class="media-container ${ratioClass}"><iframe src="https://www.youtube.com/embed/${id}" allowfullscreen></iframe></div>`;
             } else if (url.includes('drive.google.com')) {
-                const id = getDriveID(url);
-                if (id) {
-                    content = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay" allowfullscreen></iframe>`;
-                } else {
-                    content = `<p style="color:white; text-align:center;">Enlace de Drive no válido</p>`;
-                }
+                const id = url.match(/\/d\/(.+?)\/|(?:id=)([^&]+)/)?.[1] || url.match(/\/d\/(.+?)\/|(?:id=)([^&]+)/)?.[2];
+                return `<div class="media-container ${ratioClass}"><iframe src="https://drive.google.com/file/d/${id}/preview" allowfullscreen></iframe></div>`;
             } else {
-                content = `<img src="${url}">`;
+                return `<div class="media-container ${ratioClass}"><img src="${url}" alt="Multimedia" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/cccccc?text=Error'"></div>`;
             }
+        }
+
+window.openProjectPage = function(index) {
+            currentProjectIndex = index;
+            const p = projectsData[index];
+            if(!p) return;
+
+            const contentContainer = document.getElementById('project-page-content');
+            contentContainer.innerHTML = ''; // Limpiar vista anterior
+
+            // --- SECCIÓN 0: INTRO (Fondo Crema) ---
+            const introHtml = `
+                <section class="project-section section-intro">
+                    <div class="media-container intro-media ratio-3-4">
+                        <img src="${p.imagen}" alt="${p.titulo}" onerror="this.onerror=null; this.src='https://placehold.co/600x800/eeeeee/cccccc?text=Intro'">
+                    </div>
+                    <div class="intro-text-block">
+                        <span class="card-date">${p.fecha || ''}</span>
+                        <h2 class="card-title">${p.titulo}</h2>
+                        <div class="s-text">${p.desc_larga}</div>
+                    </div>
+                </section>
+            `;
+            contentContainer.innerHTML += introHtml;
+
+            // --- SECCIONES DINÁMICAS (Fondo Verde) ---
+            let dynamicHtml = ''; // Variable para agrupar las secciones
             
-            track.innerHTML = `<div class="slide active">${content}</div>`;
+            for (let i = 1; i <= 5; i++) {
+                const tipo = p[`s${i}_tipo`]?.trim().toLowerCase();
+                const titulo = p[`s${i}_titulo`];
+                const mediaUrl = p[`s${i}_media`];
+                const texto = p[`s${i}_texto`];
+
+                if(!tipo) continue; 
+
+                let sectionHtml = '';
+                const titleHtml = titulo ? `<h3 class="s-title">${titulo}</h3>` : '';
+                const textBlockHtml = texto ? `<div class="s-text-block"><div class="s-text">${texto}</div></div>` : '';
+                const mediaHtml = generateMediaHtml(mediaUrl);
+
+                if (tipo === 'full') {
+                    sectionHtml = `
+                        <section class="project-section section-full">
+                            ${titleHtml}
+                            ${generateMediaHtml(mediaUrl, 'ratio-16-9')}
+                            ${textBlockHtml}
+                        </section>
+                    `;
+                } else if (tipo === 'grid') {
+                    sectionHtml = `
+                        <section class="project-section section-grid">
+                            ${mediaHtml}
+                            <div class="s-text-block">
+                                ${titleHtml}
+                                ${texto ? `<div class="s-text">${texto}</div>` : ''}
+                            </div>
+                        </section>
+                    `;
+                } else if (tipo === 'grid_reversed') {
+                    sectionHtml = `
+                        <section class="project-section section-grid-reversed">
+                            ${mediaHtml}
+                            <div class="s-text-block">
+                                ${titleHtml}
+                                ${texto ? `<div class="s-text">${texto}</div>` : ''}
+                            </div>
+                        </section>
+                    `;
+                }
+                dynamicHtml += sectionHtml; // Añadimos la sección al grupo
+            }
+
+            // Si hay contenido dinámico, lo envolvemos en el div verde y lo inyectamos
+            if (dynamicHtml !== '') {
+                contentContainer.innerHTML += `<div class="dynamic-sections-wrapper">${dynamicHtml}</div>`;
+            }
+
+            // --- CONFIGURAR NAVEGACIÓN ---
+            renderProjectNavigation(index);
+
+            // Cambiar vistas
+            document.getElementById('portfolio-main-view').classList.add('hidden');
+            document.getElementById('project-page-view').classList.add('active');
+            document.getElementById('back-to-portfolio').style.display = 'block';
+            window.scrollTo(0, 0); 
         }
 
-        window.moveSlide = function(dir) {
-            currentSlideIndex = (currentSlideIndex + dir + currentSlides.length) % currentSlides.length;
-            renderSlide();
+        window.closeProjectPage = function() {
+            document.getElementById('portfolio-main-view').classList.remove('hidden');
+            document.getElementById('project-page-view').classList.remove('active');
+            document.getElementById('back-to-portfolio').style.display = 'none';
+            currentProjectIndex = -1;
+            window.scrollTo(0, 0);
         }
 
-        window.closeModal = function() {
-            document.getElementById('modal').classList.remove('active');
-            document.getElementById('carousel-track').innerHTML = ''; 
-            document.body.style.overflow = 'auto';
+        function renderProjectNavigation(currentIndex) {
+            const navContent = document.querySelector('.nav-content');
+            let html = '';
+
+            // Proyecto Anterior
+            if (currentIndex > 0) {
+                const prevProject = projectsData[currentIndex - 1];
+                const thumb = prevProject.imagen || 'https://placehold.co/600x400/eeeeee/cccccc?text=Cargando...';
+                
+                html += `
+                    <a id="nav-prev" class="nav-item" onclick="openProjectPage(${currentIndex - 1})">
+                        <div class="nav-thumb">
+                            <img src="${thumb}" alt="${prevProject.titulo}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/cccccc?text=Error'">
+                        </div>
+                        <h4 class="nav-title">${prevProject.titulo}</h4>
+                        <div class="nav-arrow-btn">&larr;</div>
+                    </a>
+                `;
+            }
+
+            // Siguiente Proyecto
+            if (currentIndex < projectsData.length - 1) {
+                const nextProject = projectsData[currentIndex + 1];
+                const thumb = nextProject.imagen || 'https://placehold.co/600x400/eeeeee/cccccc?text=Cargando...';
+                
+                html += `
+                    <a id="nav-next" class="nav-item" onclick="openProjectPage(${currentIndex + 1})">
+                        <div class="nav-thumb">
+                            <img src="${thumb}" alt="${nextProject.titulo}" onerror="this.onerror=null; this.src='https://placehold.co/600x400/eeeeee/cccccc?text=Error'">
+                        </div>
+                        <h4 class="nav-title">${nextProject.titulo}</h4>
+                        <div class="nav-arrow-btn">&rarr;</div>
+                    </a>
+                `;
+            }
+
+            // Inyectamos todo el HTML nuevo en el contenedor
+            navContent.innerHTML = html;
         }
-
-        document.getElementById('modal').addEventListener('click', (e) => {
-            if(e.target === document.getElementById('modal')) closeModal();
-        });
-
         init();
     </script>
 </body>
