@@ -97,22 +97,21 @@
 
         .projects-wrapper {
             margin-left: auto;
+            margin-right: 0;
             width: 100%;
             max-width: 650px; 
         }
 
         #p-intro-section {
             text-align: left;
-            margin-left: auto;
-            margin-right: 0;
+            margin: 0 0 4rem 0; 
             width: 100%;
-            max-width: 500px;
+            max-width: 100%;
             font-size: 1.6rem;
             font-style: italic;
             font-family: var(--font-title);
-            margin-bottom: 5rem;
             line-height: 1.3;
-            color: #444;
+            color: var(--body-text);
         }
         
         .projects-grid {
@@ -127,10 +126,10 @@
             cursor: pointer;
             transition: opacity 0.3s ease;
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 240px;
             gap: 3rem;
             align-items: start;
-        }
+        }}
 
         .card:hover { opacity: 0.7; }
         
@@ -499,7 +498,7 @@
                     <div class="card-content">
                         <span class="card-date">${p.fecha || ''}</span>
                         <h3 class="card-title">${p.titulo}</h3>
-                        <button class="read-btn">Read ${p.titulo}</button>
+                        <button class="read-btn">Saber más</button>
                     </div>
                     <div class="card-thumb">
                         <img src="${thumb}" alt="${p.titulo}" onerror="this.src='https://via.placeholder.com/600x400?text=Cargando...'">
@@ -585,5 +584,6 @@
     </script>
 </body>
 </html>
+
 
 
