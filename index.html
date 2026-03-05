@@ -85,7 +85,14 @@
         
         .media-container { width: 100%; background: #e0e0e0; overflow: hidden; position: relative; }
         .media-container img { width: 100%; height: auto; object-fit: cover; }
-        
+        .media-container iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: none;
+        }
         /* Helpers para Proporciones de Multimedia */
         .ratio-16-9 { aspect-ratio: 16/9; }
         .ratio-3-4 { aspect-ratio: 3/4; }
@@ -537,6 +544,7 @@ window.openProjectPage = function(index) {
     </script>
 </body>
 </html>
+
 
 
 
