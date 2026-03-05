@@ -347,7 +347,18 @@
             });
             if(perfil.nombre) document.getElementById('p-nombre-footer').textContent = perfil.nombre;
             if(perfil.email) document.getElementById('p-footer-text').textContent = perfil.email;
-            if(perfil.foto) document.getElementById('p-foto').src = perfil.foto;
+            if(perfil.foto) {
+                let fotoUrl = perfil.foto;
+                // Si la foto viene de Drive, la convertimos a un enlace directo de imagen
+                if (fotoUrl.includes('drive.google.com')) {
+                    const match = fotoUrl.match(/\/d\/(.+?)\/|(?:id=)([^&]+)/);
+                    const driveId = match ? (match[1] || match[2]) : null;
+                    if (driveId) {
+                        fotoUrl = `https://drive.google.com/uc?export=view&id=${driveId}`;
+                    }
+                }
+                document.getElementById('p-foto').src = fotoUrl;
+            }
 
             // Colores
             const root = document.documentElement.style;
@@ -544,6 +555,7 @@ window.openProjectPage = function(index) {
     </script>
 </body>
 </html>
+
 
 
 
