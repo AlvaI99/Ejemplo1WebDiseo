@@ -85,7 +85,14 @@
         
         .media-container { width: 100%; background: #e0e0e0; overflow: hidden; position: relative; }
         .media-container img { width: 100%; height: auto; object-fit: cover; }
-        
+        .media-container iframe { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            border: none;
+        }
         /* Helpers para Proporciones de Multimedia */
         .ratio-16-9 { aspect-ratio: 16/9; }
         .ratio-3-4 { aspect-ratio: 3/4; }
@@ -431,15 +438,15 @@
             }
         }
 
-window.openProjectPage = function(index) {
+window.openProjectPage = function(index, fromHistory = false) {
             currentProjectIndex = index;
             const p = projectsData[index];
             if(!p) return;
 
             const contentContainer = document.getElementById('project-page-content');
-            contentContainer.innerHTML = ''; // Limpiar vista anterior
+            contentContainer.innerHTML = ''; 
 
-            // --- SECCIÓN 0: INTRO (Fondo Crema) ---
+            // --- SECCIÓN 0: INTRO ---
             const introHtml = `
                 <section class="project-section section-intro">
                     <div class="media-container intro-media ratio-3-4">
@@ -453,12 +460,11 @@ window.openProjectPage = function(index) {
                 </section>
             `;
             contentContainer.innerHTML += introHtml;
-// --- BANNER DISCLAIMER (Opcional) ---
-		if (p.banner_texto) {
-                // Si la diseñadora no pone color, usamos un gris claro con texto oscuro por defecto
+
+            // --- BANNER DISCLAIMER (Opcional) ---
+            if (p.banner_texto) {
                 const bgBanner = p.banner_bg || '#EAEAEA'; 
                 const colorBanner = p.banner_color || '#333333'; 
-                
                 const bannerHtml = `
                     <div class="project-banner" style="background-color: ${bgBanner}; color: ${colorBanner};">
                         <div class="project-banner-content">
@@ -468,9 +474,9 @@ window.openProjectPage = function(index) {
                 `;
                 contentContainer.innerHTML += bannerHtml;
             }
+
             // --- SECCIONES DINÁMICAS (Fondo Verde) ---
-            let dynamicHtml = ''; // Variable para agrupar las secciones
-            
+            let dynamicHtml = ''; 
             for (let i = 1; i <= 5; i++) {
                 const tipo = p[`s${i}_tipo`]?.trim().toLowerCase();
                 const titulo = p[`s${i}_titulo`];
@@ -513,16 +519,21 @@ window.openProjectPage = function(index) {
                         </section>
                     `;
                 }
-                dynamicHtml += sectionHtml; // Añadimos la sección al grupo
+                dynamicHtml += sectionHtml; 
             }
 
-            // Si hay contenido dinámico, lo envolvemos en el div verde y lo inyectamos
             if (dynamicHtml !== '') {
                 contentContainer.innerHTML += `<div class="dynamic-sections-wrapper">${dynamicHtml}</div>`;
             }
 
             // --- CONFIGURAR NAVEGACIÓN ---
             renderProjectNavigation(index);
+
+            // --- NUEVO: REGISTRAR EN EL HISTORIAL DEL NAVEGADOR ---
+            if (!fromHistory) {
+                // Agrega '#proyecto-1' a la URL para que el navegador sepa que "avanzamos"
+                history.pushState({ page: 'project', index: index }, p.titulo, `#proyecto-${index}`);
+            }
 
             // Cambiar vistas
             document.getElementById('portfolio-main-view').classList.add('hidden');
@@ -531,14 +542,19 @@ window.openProjectPage = function(index) {
             window.scrollTo(0, 0); 
         }
 
-        window.closeProjectPage = function() {
+        window.closeProjectPage = function(fromHistory = false) {
             document.getElementById('portfolio-main-view').classList.remove('hidden');
             document.getElementById('project-page-view').classList.remove('active');
             document.getElementById('back-to-portfolio').style.display = 'none';
             currentProjectIndex = -1;
             window.scrollTo(0, 0);
-        }
 
+            // --- NUEVO: LIMPIAR LA URL AL VOLVER AL HOME ---
+            if (!fromHistory) {
+                history.pushState({ page: 'home' }, "", window.location.pathname);
+            }
+        }
+        
         function renderProjectNavigation(currentIndex) {
             const navContent = document.querySelector('.nav-content');
             let html = '';
@@ -578,7 +594,21 @@ window.openProjectPage = function(index) {
             // Inyectamos todo el HTML nuevo en el contenedor
             navContent.innerHTML = html;
         }
+	// 1. Al cargar la web, le decimos al navegador que estamos en la página "Home"
+        history.replaceState({ page: 'home' }, "", window.location.pathname);
+
+        // 2. Escuchamos cuando el usuario intenta retroceder o avanzar
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page === 'project') {
+                // Si retrocedemos hacia un proyecto anterior, lo abrimos sin alterar el historial (true)
+                openProjectPage(event.state.index, true); 
+            } else {
+                // Si retrocedemos hasta el inicio, cerramos el proyecto y volvemos al Home
+                closeProjectPage(true); 
+            }
+        });
         init();
     </script>
 </body>
 </html>
+
