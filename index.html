@@ -85,14 +85,7 @@
         
         .media-container { width: 100%; background: #e0e0e0; overflow: hidden; position: relative; }
         .media-container img { width: 100%; height: auto; object-fit: cover; }
-        .media-container iframe { 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            border: none;
-        }
+        
         /* Helpers para Proporciones de Multimedia */
         .ratio-16-9 { aspect-ratio: 16/9; }
         .ratio-3-4 { aspect-ratio: 3/4; }
@@ -250,7 +243,27 @@
             padding: 3rem 0; 
             border-top: none; /* Quitamos el borde para que no choque con la navegación */
         }
-
+	/* --- BANNER DISCLAIMER --- */
+        .project-banner {
+            /* Ocupa todo el ancho de la pantalla */
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            
+            padding: 3rem 4vw;
+            text-align: center;
+            font-family: var(--font-body);
+            font-style: italic; /* Ideal para notas aclaratorias */
+        }
+        
+        .project-banner-content {
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
         /* Responsive */
         @media (max-width: 768px) {
             .header-content, .section-intro, .section-grid, .section-grid-reversed { grid-template-columns: 1fr; gap: 2rem; }
@@ -440,7 +453,21 @@ window.openProjectPage = function(index) {
                 </section>
             `;
             contentContainer.innerHTML += introHtml;
-
+// --- BANNER DISCLAIMER (Opcional) ---
+		if (p.banner_texto) {
+                // Si la diseñadora no pone color, usamos un gris claro con texto oscuro por defecto
+                const bgBanner = p.banner_bg || '#EAEAEA'; 
+                const colorBanner = p.banner_color || '#333333'; 
+                
+                const bannerHtml = `
+                    <div class="project-banner" style="background-color: ${bgBanner}; color: ${colorBanner};">
+                        <div class="project-banner-content">
+                            ${p.banner_texto.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+                contentContainer.innerHTML += bannerHtml;
+            }
             // --- SECCIONES DINÁMICAS (Fondo Verde) ---
             let dynamicHtml = ''; // Variable para agrupar las secciones
             
@@ -555,8 +582,3 @@ window.openProjectPage = function(index) {
     </script>
 </body>
 </html>
-
-
-
-
-
